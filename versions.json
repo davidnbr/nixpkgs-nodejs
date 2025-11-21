@@ -1,244 +1,49 @@
 {
   "versions": {
-    "18.12.1": {
-      "version": "18.12.1",
-      "nixpkgs_commit": "nodejs-18.12.1"
+    "18.16": {
+      "version": "18.16",
+      "rev": "824421b1796332ad1bcb35bc7855da832c43305f",
+      "sha256": "1w6cjnakz1yi66rs8c6nmhymsr7bj82vs2hz200ipi1sfiq8dy4y"
+    },
+    "18.18": {
+      "version": "18.18",
+      "rev": "9957cd48326fe8dbd52fdc50dd2502307f188b0d",
+      "sha256": "1l2hq1n1jl2l64fdcpq3jrfphaz10sd1cpsax3xdya0xgsncgcsi"
+    },
+    "18.20": {
+      "version": "18.20",
+      "rev": "05bbf675397d5366259409139039af8077d695ce",
+      "sha256": "1r26vjqmzgphfnby5lkfihz6i3y70hq84bpkwd43qjjvgxkcyki0"
+    },
+    "20.14": {
+      "version": "20.14",
+      "rev": "a343533bccc62400e8a9560423486a3b6c11a23b",
+      "sha256": "0103a1a1g5sp4bjhm6fl0nfw69jgdiwrwz96nnqi0f3bg6vcg1sf"
+    },
+    "20.16": {
+      "version": "20.16",
+      "rev": "5633bcff0c6162b9e4b5f1264264611e950c8ec7",
+      "sha256": "0p3ry8x72cl572fs1c47h9y3s045p4aq71wpblzdi4dfqx3z2i7m"
+    },
+    "20.18": {
+      "version": "20.18",
+      "rev": "13aff9b34cc32e59d35c62ac9356e4a41198a538",
+      "sha256": "0ij9dq03b9awqfr0ys837cxlw6rzzjg1lnqhch81wpyvn892v5w0"
+    },
+    "22.6": {
+      "version": "22.6",
+      "rev": "5633bcff0c6162b9e4b5f1264264611e950c8ec7",
+      "sha256": "0p3ry8x72cl572fs1c47h9y3s045p4aq71wpblzdi4dfqx3z2i7m"
+    },
+    "22.8": {
+      "version": "22.8",
+      "rev": "13aff9b34cc32e59d35c62ac9356e4a41198a538",
+      "sha256": "0ij9dq03b9awqfr0ys837cxlw6rzzjg1lnqhch81wpyvn892v5w0"
+    },
+    "22.10": {
+      "version": "22.10",
+      "rev": "70f1dbb84e4051dfd5cf0d0d7d7d6e0e5ae989ea",
+      "sha256": "0000000000000000000000000000000000000000000000000000"
     }
-,
-    "18.14.2": {
-      "version": "18.14.2",
-      "nixpkgs_commit": "nodejs-18.14.2"
-    }
-,
-    "18.15.0": {
-      "version": "18.15.0",
-      "nixpkgs_commit": "nodejs-18.15.0"
-    }
-,
-    "18.16.1": {
-      "version": "18.16.1",
-      "nixpkgs_commit": "nodejs-18.16.1"
-    }
-,
-    "18.17.1": {
-      "version": "18.17.1",
-      "nixpkgs_commit": "nodejs-18.17.1"
-    }
-,
-    "18.18.2": {
-      "version": "18.18.2",
-      "nixpkgs_commit": "nodejs-18.18.2"
-    }
-,
-    "18.19.1": {
-      "version": "18.19.1",
-      "nixpkgs_commit": "nodejs-18.19.1"
-    }
-,
-    "18.2.0": {
-      "version": "18.2.0",
-      "nixpkgs_commit": "nodejs-18.2.0"
-    }
-,
-    "18.4.0": {
-      "version": "18.4.0",
-      "nixpkgs_commit": "nodejs-18.4.0"
-    }
-,
-    "18.6.0": {
-      "version": "18.6.0",
-      "nixpkgs_commit": "nodejs-18.6.0"
-    }
-,
-    "18.7.0": {
-      "version": "18.7.0",
-      "nixpkgs_commit": "nodejs-18.7.0"
-    }
-,
-    "18.9.1": {
-      "version": "18.9.1",
-      "nixpkgs_commit": "nodejs-18.9.1"
-    }
-,
-    "19.0.1": {
-      "version": "19.0.1",
-      "nixpkgs_commit": "nodejs-19.0.1"
-    }
-,
-    "19.2.0": {
-      "version": "19.2.0",
-      "nixpkgs_commit": "nodejs-19.2.0"
-    }
-,
-    "19.7.0": {
-      "version": "19.7.0",
-      "nixpkgs_commit": "nodejs-19.7.0"
-    }
-,
-    "19.8.1": {
-      "version": "19.8.1",
-      "nixpkgs_commit": "nodejs-19.8.1"
-    }
-,
-    "19.9.0": {
-      "version": "19.9.0",
-      "nixpkgs_commit": "nodejs-19.9.0"
-    }
-,
-    "20.0.0": {
-      "version": "20.0.0",
-      "nixpkgs_commit": "nodejs-20.0.0"
-    }
-,
-    "20.10.0": {
-      "version": "20.10.0",
-      "nixpkgs_commit": "nodejs-20.10.0"
-    }
-,
-    "20.11.1": {
-      "version": "20.11.1",
-      "nixpkgs_commit": "nodejs-20.11.1"
-    }
-,
-    "20.12.2": {
-      "version": "20.12.2",
-      "nixpkgs_commit": "nodejs-20.12.2"
-    }
-,
-    "20.14.0": {
-      "version": "20.14.0",
-      "nixpkgs_commit": "nodejs-20.14.0"
-    }
-,
-    "20.15.1": {
-      "version": "20.15.1",
-      "nixpkgs_commit": "nodejs-20.15.1"
-    }
-,
-    "20.17.0": {
-      "version": "20.17.0",
-      "nixpkgs_commit": "nodejs-20.17.0"
-    }
-,
-    "20.18.3": {
-      "version": "20.18.3",
-      "nixpkgs_commit": "nodejs-20.18.3"
-    }
-,
-    "20.2.0": {
-      "version": "20.2.0",
-      "nixpkgs_commit": "nodejs-20.2.0"
-    }
-,
-    "20.3.1": {
-      "version": "20.3.1",
-      "nixpkgs_commit": "nodejs-20.3.1"
-    }
-,
-    "20.5.1": {
-      "version": "20.5.1",
-      "nixpkgs_commit": "nodejs-20.5.1"
-    }
-,
-    "20.7.0": {
-      "version": "20.7.0",
-      "nixpkgs_commit": "nodejs-20.7.0"
-    }
-,
-    "21.2.0": {
-      "version": "21.2.0",
-      "nixpkgs_commit": "nodejs-21.2.0"
-    }
-,
-    "21.5.0": {
-      "version": "21.5.0",
-      "nixpkgs_commit": "nodejs-21.5.0"
-    }
-,
-    "21.6.2": {
-      "version": "21.6.2",
-      "nixpkgs_commit": "nodejs-21.6.2"
-    }
-,
-    "22.0.0": {
-      "version": "22.0.0",
-      "nixpkgs_commit": "nodejs-22.0.0"
-    }
-,
-    "22.10.0": {
-      "version": "22.10.0",
-      "nixpkgs_commit": "nodejs-22.10.0"
-    }
-,
-    "22.11.0": {
-      "version": "22.11.0",
-      "nixpkgs_commit": "nodejs-22.11.0"
-    }
-,
-    "22.12.0": {
-      "version": "22.12.0",
-      "nixpkgs_commit": "nodejs-22.12.0"
-    }
-,
-    "22.14.0": {
-      "version": "22.14.0",
-      "nixpkgs_commit": "nodejs-22.14.0"
-    }
-,
-    "22.2.0": {
-      "version": "22.2.0",
-      "nixpkgs_commit": "nodejs-22.2.0"
-    }
-,
-    "22.3.0": {
-      "version": "22.3.0",
-      "nixpkgs_commit": "nodejs-22.3.0"
-    }
-,
-    "22.4.1": {
-      "version": "22.4.1",
-      "nixpkgs_commit": "nodejs-22.4.1"
-    }
-,
-    "22.5.1": {
-      "version": "22.5.1",
-      "nixpkgs_commit": "nodejs-22.5.1"
-    }
-,
-    "22.8.0": {
-      "version": "22.8.0",
-      "nixpkgs_commit": "nodejs-22.8.0"
-    }
-,
-    "22.9.0": {
-      "version": "22.9.0",
-      "nixpkgs_commit": "nodejs-22.9.0"
-    }
-,
-    "23.10.0": {
-      "version": "23.10.0",
-      "nixpkgs_commit": "nodejs-23.10.0"
-    }
-,
-    "23.2.0": {
-      "version": "23.2.0",
-      "nixpkgs_commit": "nodejs-23.2.0"
-    }
-,
-    "23.6.1": {
-      "version": "23.6.1",
-      "nixpkgs_commit": "nodejs-23.6.1"
-    }
-,
-    "23.8.0": {
-      "version": "23.8.0",
-      "nixpkgs_commit": "nodejs-23.8.0"
-    }
-,
-    "24.1.0": {
-      "version": "24.1.0",
-      "nixpkgs_commit": "nodejs-24.1.0"
-    }
-
   }
 }
