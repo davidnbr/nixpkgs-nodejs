@@ -8,7 +8,7 @@ NODEJS_VERSIONS=$(curl -s https://nodejs.org/dist/index.json)
 # Filter for versions >= 16.0.0 (adjust as needed)
 # Only keep latest patch version per minor release
 FILTERED_VERSIONS=$(echo "$NODEJS_VERSIONS" | jq -r '
-  [.[] | select(.version | test("^v(1[6-9]|2[0-9])"))] |
+  [.[] | select(.version | test("^v(1[8-9]|2[0-9])"))] |
   group_by(.version | split(".")[0:2] | join(".")) |
   map(max_by(.version)) |
   .[]
