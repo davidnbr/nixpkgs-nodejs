@@ -25,11 +25,6 @@ jobs:
           name: nixpkgs-nodejs
           authToken: "${{ secrets.CACHIX_AUTH_TOKEN }}"
 
-      - name: Update versions
-        run: |
-          chmod +x scripts/update-versions.sh
-          ./scripts/update-versions.sh
-
       - name: Build all packages
         run: |
           # Build each package and push to cachix
