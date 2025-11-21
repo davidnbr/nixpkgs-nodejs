@@ -29,7 +29,7 @@ jobs:
       - name: Install and Activate Environment Tools (nix-prefetch-git, jq)
         id: activate_tools
         run: |
-          nix profile add nixpkgs#nix-prefetch-git nixpkgs#jq
+          nix shell nixpkgs#nix-prefetch-git nixpkgs#jq
 
       - id: update_hashes
         run: |
