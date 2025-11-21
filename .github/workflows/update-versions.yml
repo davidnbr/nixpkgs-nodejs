@@ -26,7 +26,41 @@ jobs:
           authToken: "${{ secrets.CACHIX_AUTH_TOKEN }}"
 
       - run: |
-          ./scripts/get-revs.sh
+          set -euo pipefail
+
+          # Check again just to be sure
+          if ! command -v nix-prefetch-git &> /dev/null; then
+              echo "FATAL: 'nix-prefetch-git' is still not found after sourcing. Aborting."
+              exit 1
+          fi
+
+          UPDATED_JSON=$(cat versions.json)
+          mapfile -t REVS < <(jq -r '.versions | to_entries[] | "\(.key) \(.value.rev)"' versions.json)
+
+          for entry in "${REVS[@]}"; do
+              VERSION_KEY=$(echo "$entry" | cut -d' ' -f1)
+              REV_HASH=$(echo "$entry" | cut -d' ' -f2)
+
+              echo "Processing ${VERSION_KEY}..."
+
+              NEW_SHA256=$(
+                  nix-prefetch-git "https://github.com/NixOS/nixpkgs.git" "${REV_HASH}" \
+                  --quiet --fetch-submodules | jq -r '.sha256'
+              )
+
+              if [ -n "$NEW_SHA256" ] && [ "$NEW_SHA256" != "null" ]; then
+                  UPDATED_JSON=$(echo "$UPDATED_JSON" | jq \
+                      --arg v "$VERSION_KEY" \
+                      --arg sha "$NEW_SHA256" \
+                      '.versions[$v] += {sha256: $sha}'
+                  )
+              else
+                  echo "❌ Failed to get hash for rev ${REV_HASH}. Skipping."
+              fi
+          done
+
+          echo "$UPDATED_JSON" > versions.json
+          echo "✓ versions.json updated successfully."
 
       - run: |
           cat versions.json | jq -r '.versions.[].rev' | \
