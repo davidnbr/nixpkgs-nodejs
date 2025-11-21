@@ -25,7 +25,18 @@ jobs:
           name: nixpkgs-nodejs
           authToken: "${{ secrets.CACHIX_AUTH_TOKEN }}"
 
-      - run: |
+      - name: Install and Activate Environment Tools (nix-prefetch-git, jq)
+        id: activate_tools
+        run: |
+          nix-shell --pure -p nix-prefetch-git jq --run "
+            echo 'NIX_SHELL_ACTIVATED=true' >> \"\$GITHUB_OUTPUT\"
+            echo 'PATH='\"\$PATH\" >> \"\$GITHUB_OUTPUT\"
+          "
+
+      - id: update_hashes
+        env:
+          PATH: ${{ steps.activate_tools.outputs.PATH }}
+        run: |
           set -euo pipefail
 
           # Check again just to be sure
