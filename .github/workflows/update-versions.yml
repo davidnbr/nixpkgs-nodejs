@@ -19,6 +19,7 @@ jobs:
         with:
           extra_nix_config: |
             experimental-features = nix-command flakes
+          nix_path: nixpkgs=channel:nixos-unstable
 
       - uses: cachix/cachix-action@v15
         with:
@@ -28,14 +29,9 @@ jobs:
       - name: Install and Activate Environment Tools (nix-prefetch-git, jq)
         id: activate_tools
         run: |
-          nix-shell --pure -p nix-prefetch-git jq --run "
-            echo 'NIX_SHELL_ACTIVATED=true' >> \"\$GITHUB_OUTPUT\"
-            echo 'PATH='\"\$PATH\" >> \"\$GITHUB_OUTPUT\"
-          "
+          nix profile add nixpkgs#nix-prefetch-git nixpkgs#jq
 
       - id: update_hashes
-        env:
-          PATH: ${{ steps.activate_tools.outputs.PATH }}
         run: |
           set -euo pipefail
 
