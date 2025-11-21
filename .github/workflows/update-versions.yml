@@ -26,6 +26,9 @@ jobs:
           authToken: "${{ secrets.CACHIX_AUTH_TOKEN }}"
 
       - run: |
+          ./scripts/get-revs.sh
+
+      - run: |
           cat versions.json | jq -r '.versions.[].rev' | \
           while read rev; do
             nix shell github:nixos/nixpkgs/${rev}#elmPackages.nodejs -- exit || true
