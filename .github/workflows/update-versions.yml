@@ -26,14 +26,8 @@ jobs:
           name: nixpkgs-nodejs
           authToken: "${{ secrets.CACHIX_AUTH_TOKEN }}"
 
-      - name: Install and Activate Environment Tools (nix-prefetch-git, jq)
-        id: activate_tools
-        run: |
-          nix shell nixpkgs#nix-prefetch-git nixpkgs#jq
-
-      - id: update_hashes
-        run: |
-          set -euo pipefail
+      - run: |
+          nix shell nixpkgs#nix-prefetch-git nixpkgs#jq --
 
           # Check again just to be sure
           if ! command -v nix-prefetch-git &> /dev/null; then
