@@ -77,7 +77,7 @@ jobs:
         run: |
           TARGET_SYSTEM="x86_64-linux"
           TARGETS=$(nix flake show --json | \
-            jq -r --arg system "$TARGET_SYSTEM" '.packages[$system] | keys[] | ".#\(.)"')
+            jq -r --arg system "$TARGET_SYSTEM" '.packages[$system] | keys[] | ".#\"\(.)\""')
 
           echo "Building targets: $TARGETS"
 
