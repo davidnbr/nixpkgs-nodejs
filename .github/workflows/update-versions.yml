@@ -92,7 +92,7 @@ jobs:
           TARGET_SYSTEM="x86_64-linux"
           # Build each package and push to cachix
           nix flake show --json | \
-            jq -r '.packages."${TARGET_SYSTEM}" | keys[]' | \
+            jq -r --arg system "$TARGET_SYSTEM" '.packages.[$system] | keys[]' | \
             grep -v "^default$" | \
             while read version; do
               echo "Building nodejs-${version} for ${TARGET_SYSTEM}..."
