@@ -27,8 +27,9 @@ jobs:
           name: nixpkgs-nodejs
           authToken: "${{ secrets.CACHIX_AUTH_TOKEN }}"
 
-      - shell: "nix shell nixpkgs#nix-prefetch-git nixpkgs#jq -- {0}"
-        run: |
+      - run: nix profile add nixpkgs#nix-prefetch-git nixpkgs#jq
+
+      - run: |
           # Check again just to be sure
           if ! command -v nix-prefetch-git &> /dev/null; then
               echo "FATAL: 'nix-prefetch-git' is still not found after sourcing. Aborting."
