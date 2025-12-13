@@ -90,14 +90,12 @@ jobs:
       - name: Build all packages
         run: |
           TARGET_SYSTEM="x86_64-linux"
-          # Build each package and push to cachix
-          nix flake show --json | \
-            jq -r --arg system "$TARGET_SYSTEM" '.packages.[$system] | keys[]' | \
-            grep -v "^default$" | \
-            while read version; do
-              echo "Building nodejs-${version} for ${TARGET_SYSTEM}..."
-              nix build ".#packages.${TARGET_SYSTEM}.${version}" --print-build-logs
-            done
+          TARGETS=$(nix flake show --json | \
+            jq -r --arg system "$TARGET_SYSTEM" '.packages[$system] | \
+              keys[] | ".#\(.)"')
+
+          echo "Building targets: $TARGETS"
+          nix build $TARGETS --print-build-logs
 
       - name: Commit changes
         run: |
