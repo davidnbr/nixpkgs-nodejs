@@ -39,14 +39,20 @@ jobs:
       - if: steps.cache-prefetch.outputs.cache-hit != 'true'
         run: |
           if ! command -v nix-prefetch-git &> /dev/null; then
-              echo "FATAL: 'nix-prefetch-git' is still not found after sourcing. Aborting."
+              echo "FATAL: 'nix-prefetch-git' is not found."
               exit 1
           fi
 
-          UPDATED_JSON=$(cat versions.json)
-          mapfile -t REVS < <(jq -r '.versions | to_entries[] | "\(.key) \(.value.rev)"' versions.json)
+          mapfile -t TO_UPDATE < <(jq -r '.versions | to_entries[] | select(.value.sha256 == null) | "\(.key) \(.value.rev)"' versions.json)
 
-          for entry in "${REVS[@]}"; do
+          if [ ${#TO_UPDATE[@]} -eq 0 ]; then
+             echo "All versions already have hashes. Nothing to do."
+             exit 0
+          fi
+
+          UPDATED_JSON=$(cat versions.json)
+
+          for entry in "${TO_UPDATE[@]}"; do
               VERSION_KEY=$(echo "$entry" | cut -d' ' -f1)
               REV_HASH=$(echo "$entry" | cut -d' ' -f2)
 
@@ -57,16 +63,16 @@ jobs:
                   --quiet --fetch-submodules | jq -r '.sha256'
               )
 
-              echo "hash: $NEW_SHA256"
-
               if [ -n "$NEW_SHA256" ] && [ "$NEW_SHA256" != "null" ]; then
+                  echo " -> Hash: $NEW_SHA256"
                   UPDATED_JSON=$(echo "$UPDATED_JSON" | jq \
                       --arg v "$VERSION_KEY" \
                       --arg sha "$NEW_SHA256" \
                       '.versions[$v] += {sha256: $sha}'
                   )
               else
-                  echo "❌ Failed to get hash for rev ${REV_HASH}. Skipping."
+                echo "::error::Failed to get hash for rev ${REV_HASH}. Skipping."
+                exit 1
               fi
           done
 
