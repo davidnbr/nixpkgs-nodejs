@@ -16,7 +16,7 @@
       "version": "18.20",
       "rev": "c5dd43934613ae0f8ff37c59f61c507c2e8f980d",
       "sha256": "1cpw3m45v7s7bm9mi750dkdyjgd2gp2vq0y7vr3j42ifw1i85gxv",
-      "attr": "elmPackages.nodejs"
+      "attr": "nodejs_18"
     },
     "20.14": {
       "version": "20.14",
