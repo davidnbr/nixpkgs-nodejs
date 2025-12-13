@@ -37,7 +37,7 @@ jobs:
               exit 1
           fi
 
-          mapfile -t TO_UPDATE < <(jq -r '.versions | to_entries[] | select(.value.sha256 == null) | "\(.key) \(.value.rev)"' versions.json)
+          mapfile -t TO_UPDATE < <(jq -r '.versions | to_entries[] | select(.value.sha256 == "") | "\(.key) \(.value.rev)"' versions.json)
 
           if [ ${#TO_UPDATE[@]} -eq 0 ]; then
              echo "All versions already have hashes. Nothing to do."
