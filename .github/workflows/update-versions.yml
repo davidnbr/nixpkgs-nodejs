@@ -15,19 +15,19 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - uses: cachix/install-nix-action@v27
+      - uses: cachix/install-nix-action@v31
         with:
           extra_nix_config: |
             experimental-features = nix-command flakes
           set_as_trusted_user: true
           nix_path: nixpkgs=channel:nixos-unstable
 
-      - uses: cachix/cachix-action@v15
+      - uses: cachix/cachix-action@v16
         with:
           name: nixpkgs-nodejs
           authToken: "${{ secrets.CACHIX_AUTH_TOKEN }}"
 
-      - shell: "nix shell nixpkgs#nix-prefetch-git nixpkgs#jq --"
+      - shell: "nix shell nixpkgs#nix-prefetch-git nixpkgs#jq -- {0}"
         run: |
           # Check again just to be sure
           if ! command -v nix-prefetch-git &> /dev/null; then
