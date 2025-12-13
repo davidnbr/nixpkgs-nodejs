@@ -43,7 +43,11 @@
           else throw "Node.js version ${version} not found in versionMap";
 
         getNodejs = { system, version }:
-          (getNixpkgs { inherit system version; }).nodejs;
+          let
+            pkgs = getNixpkgs { inherit system version; };
+            attrName = versionMap.${version}.attr or "nodejs";
+          in
+          pkgs.${attrName};
       };
 
       # Generate all packages for a given system
