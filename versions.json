@@ -2,47 +2,47 @@
   "versions": {
     "18.16": {
       "version": "18.16",
-      "rev": "824421b1796332ad1bcb35bc7855da832c43305f",
+      "rev": "50a7139fbd1acd4a3d4cfa695e694c529dd26f3a",
       "sha256": "1w6cjnakz1yi66rs8c6nmhymsr7bj82vs2hz200ipi1sfiq8dy4y"
     },
     "18.18": {
       "version": "18.18",
-      "rev": "9957cd48326fe8dbd52fdc50dd2502307f188b0d",
+      "rev": "459104f841356362bfb9ce1c788c1d42846b2454",
       "sha256": "1l2hq1n1jl2l64fdcpq3jrfphaz10sd1cpsax3xdya0xgsncgcsi"
     },
     "18.20": {
       "version": "18.20",
-      "rev": "05bbf675397d5366259409139039af8077d695ce",
+      "rev": "c5dd43934613ae0f8ff37c59f61c507c2e8f980d",
       "sha256": "1r26vjqmzgphfnby5lkfihz6i3y70hq84bpkwd43qjjvgxkcyki0"
     },
     "20.14": {
       "version": "20.14",
-      "rev": "a343533bccc62400e8a9560423486a3b6c11a23b",
+      "rev": "05bbf675397d5366259409139039af8077d695ce",
       "sha256": "0103a1a1g5sp4bjhm6fl0nfw69jgdiwrwz96nnqi0f3bg6vcg1sf"
     },
-    "20.16": {
-      "version": "20.16",
-      "rev": "5633bcff0c6162b9e4b5f1264264611e950c8ec7",
+    "20.17": {
+      "version": "20.17",
+      "rev": "ab7b6889ae9d484eed2876868209e33eb262511d",
       "sha256": "0p3ry8x72cl572fs1c47h9y3s045p4aq71wpblzdi4dfqx3z2i7m"
     },
     "20.18": {
       "version": "20.18",
-      "rev": "13aff9b34cc32e59d35c62ac9356e4a41198a538",
+      "rev": "0bd7f95e4588643f2c2d403b38d8a2fe44b0fc73",
       "sha256": "0ij9dq03b9awqfr0ys837cxlw6rzzjg1lnqhch81wpyvn892v5w0"
     },
-    "22.6": {
-      "version": "22.6",
-      "rev": "5633bcff0c6162b9e4b5f1264264611e950c8ec7",
+    "22.4": {
+      "version": "22.4",
+      "rev": "efcb904a6c674d1d3717b06b89b54d65104d4ea7",
       "sha256": "0p3ry8x72cl572fs1c47h9y3s045p4aq71wpblzdi4dfqx3z2i7m"
     },
     "22.8": {
       "version": "22.8",
-      "rev": "13aff9b34cc32e59d35c62ac9356e4a41198a538",
+      "rev": "ab7b6889ae9d484eed2876868209e33eb262511d",
       "sha256": "0ij9dq03b9awqfr0ys837cxlw6rzzjg1lnqhch81wpyvn892v5w0"
     },
     "22.10": {
       "version": "22.10",
-      "rev": "70f1dbb84e4051dfd5cf0d0d7d7d6e0e5ae989ea",
+      "rev": "882842d2a908700540d206baa79efb922ac1c33d",
       "sha256": "0000000000000000000000000000000000000000000000000000"
     }
   }
