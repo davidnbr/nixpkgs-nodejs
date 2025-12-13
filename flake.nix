@@ -64,11 +64,10 @@
       # Library functions for integration (compatible with asdf2nix API)
       inherit lib;
 
-      # Binary cache configuration (update after Cachix setup)
       nixConfig = {
         extra-substituters = [ "https://nixpkgs-nodejs.cachix.org" ];
         extra-trusted-public-keys = [
-          "nixpkgs-nodejs.cachix.org-1:PLACEHOLDER_REPLACE_AFTER_CACHIX_SETUP="
+          "nixpkgs-nodejs.cachix.org-1:zUIFXIRHGVtNSAhYWPDOIpr/4hAvhUEfcRo78RWDgiI="
         ];
       };
     };
