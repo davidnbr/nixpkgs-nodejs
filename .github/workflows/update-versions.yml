@@ -50,6 +50,8 @@ jobs:
                   --quiet --fetch-submodules | jq -r '.sha256'
               )
 
+              echo "hash: $NEW_SHA256"
+
               if [ -n "$NEW_SHA256" ] && [ "$NEW_SHA256" != "null" ]; then
                   UPDATED_JSON=$(echo "$UPDATED_JSON" | jq \
                       --arg v "$VERSION_KEY" \
