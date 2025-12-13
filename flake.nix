@@ -39,7 +39,7 @@
             import (builtins.fetchTarball {
               url = "https://github.com/NixOS/nixpkgs/archive/${info.rev}.tar.gz";
               sha256 = info.sha256;
-            }) { inherit system; config.allowUnfree = true; }
+            }) { inherit system; config.allowUnfree = true; config.allowInsecurePredicate = (_: true);}
           else throw "Node.js version ${version} not found in versionMap";
 
         getNodejs = { system, version }:
