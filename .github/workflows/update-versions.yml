@@ -29,8 +29,14 @@ jobs:
 
       - run: nix profile add nixpkgs#nix-prefetch-git nixpkgs#jq
 
-      - run: |
-          # Check again just to be sure
+      - uses: actions/cache@v4
+        id: cache-prefetch
+        with:
+          path: ./versions.json
+          key: prefetch-main-${{ hashFiles('versions.json') }}
+
+      - if: steps.cache-prefetch.outputs.cache-hit != 'true'
+        run: |
           if ! command -v nix-prefetch-git &> /dev/null; then
               echo "FATAL: 'nix-prefetch-git' is still not found after sourcing. Aborting."
               exit 1
@@ -91,8 +97,7 @@ jobs:
         run: |
           TARGET_SYSTEM="x86_64-linux"
           TARGETS=$(nix flake show --json | \
-            jq -r --arg system "$TARGET_SYSTEM" '.packages[$system] | \
-              keys[] | ".#\(.)"')
+            jq -r --arg system "$TARGET_SYSTEM" '.packages[$system] | keys[] | ".#\(.)"')
 
           echo "Building targets: $TARGETS"
           nix build $TARGETS --print-build-logs
