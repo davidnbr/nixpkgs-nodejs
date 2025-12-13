@@ -67,9 +67,24 @@ jobs:
           echo "✓ versions.json updated successfully."
 
       - run: |
-          cat versions.json | jq -r '.versions.[].rev' | \
-          while read rev; do
-            nix shell github:nixos/nixpkgs/${rev}#elmPackages.nodejs -- exit || true
+          jq -r '.versions.[] | "\(.version) \(.rev)"' versions.json | \
+          while read -r version rev; do
+            echo "Version: $version ($rev)"
+            case "$version" in
+              18.*)
+                ATTR="elmPackages.nodejs"
+                ;;
+              20.*)
+                ATTR="nodejs_20"
+                ;;
+              22.*)
+                ATTR="nodejs_22"
+                ;;
+              *)
+                ATTR="nodejs"
+                ;;
+            esac
+            nix shell github:nixos/nixpkgs/${rev}#${ATTR} -- exit || true
           done
 
       - name: Build all packages
