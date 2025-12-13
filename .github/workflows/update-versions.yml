@@ -80,6 +80,7 @@ jobs:
             jq -r --arg system "$TARGET_SYSTEM" '.packages[$system] | keys[] | ".#\(.)"')
 
           echo "Building targets: $TARGETS"
+
           nix build $TARGETS --print-build-logs
 
       - name: Commit changes

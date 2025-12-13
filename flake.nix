@@ -46,8 +46,9 @@
           let
             pkgs = getNixpkgs { inherit system version; };
             attrName = versionMap.${version}.attr or "nodejs";
+            attrPath = nixpkgs.lib.splitString "." attrName;
           in
-          pkgs.${attrName};
+            nixpkgs.lib.attrByPath attrPath (throw "Attribute ${attrName} not found") pkgs;
       };
 
       # Generate all packages for a given system
