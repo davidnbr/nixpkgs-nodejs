@@ -19,6 +19,7 @@ jobs:
         with:
           extra_nix_config: |
             experimental-features = nix-command flakes
+          set_as_trusted_user: true
           nix_path: nixpkgs=channel:nixos-unstable
 
       - uses: cachix/cachix-action@v15
@@ -26,9 +27,8 @@ jobs:
           name: nixpkgs-nodejs
           authToken: "${{ secrets.CACHIX_AUTH_TOKEN }}"
 
-      - run: |
-          nix shell nixpkgs#nix-prefetch-git nixpkgs#jq --
-
+      - shell: "nix shell nixpkgs#nix-prefetch-git nixpkgs#jq --"
+        run: |
           # Check again just to be sure
           if ! command -v nix-prefetch-git &> /dev/null; then
               echo "FATAL: 'nix-prefetch-git' is still not found after sourcing. Aborting."
