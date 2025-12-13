@@ -3,19 +3,19 @@
     "16.14": {
       "version": "16.14",
       "rev": "d1c3fea7ecbed758168787fe4e4a3157e52bc808",
-      "sha256": "",
+      "sha256": "0ykm15a690v8lcqf2j899za3j6hak1rm3xixdxsx33nz7n3swsyy",
       "attr": "nodejs"
     },
     "16.18": {
       "version": "16.18",
       "rev": "3c3b3ab88a34ff8026fc69cb78febb9ec9aedb16",
-      "sha256": "",
+      "sha256": "19ag9878rzd9fqch0gcpgkhbdxssa08lmqwbixhr06q0h00xixxx",
       "attr": "nodejs-16_x"
     },
     "16.20": {
       "version": "16.20",
       "rev": "9957cd48326fe8dbd52fdc50dd2502307f188b0d",
-      "sha256": "",
+      "sha256": "1l2hq1n1jl2l64fdcpq3jrfphaz10sd1cpsax3xdya0xgsncgcsi",
       "attr": "nodejs_16"
     },
     "18.16": {
