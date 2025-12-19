@@ -16,7 +16,7 @@ jobs:
       - id: set-matrix
         run: |
           JSON=$(jq -c '.versions | keys' versions.json)
-          echo "matrix=$JSON" >> GITHUB_OUTPUT
+          echo "matrix=$JSON" >> "$GITHUB_OUTPUT"
   update:
     runs-on: ubuntu-latest
     permissions:
