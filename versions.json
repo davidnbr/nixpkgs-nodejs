@@ -1,5 +1,17 @@
 {
   "versions": {
+    "16.18": {
+      "version": "16.18",
+      "rev": "3c3b3ab88a34ff8026fc69cb78febb9ec9aedb16",
+      "sha256": "19ag9878rzd9fqch0gcpgkhbdxssa08lmqwbixhr06q0h00xixxx",
+      "attr": "nodejs-16_x"
+    },
+    "16.20": {
+      "version": "16.20",
+      "rev": "9957cd48326fe8dbd52fdc50dd2502307f188b0d",
+      "sha256": "1l2hq1n1jl2l64fdcpq3jrfphaz10sd1cpsax3xdya0xgsncgcsi",
+      "attr": "nodejs_16"
+    },
     "18.16": {
       "version": "18.16",
       "rev": "50a7139fbd1acd4a3d4cfa695e694c529dd26f3a",
