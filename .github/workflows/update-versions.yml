@@ -21,6 +21,11 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write
+    needs: generate-matrix
+    strategy:
+      fail-fast: false
+      matrix:
+        version: ${{ fromJson(needs.generate-matrix.outputs.matrix) }}
 
     steps:
       - uses: actions/checkout@v4
@@ -86,8 +91,7 @@ jobs:
       - name: Build ${{ matrix.version }} version
         run: |
           TARGET_SYSTEM="x86_64-linux"
-
-          nix build .#packages.$TARGET_SYSTEM."${{ matrix.version }}" --print-build-logs
+          nix build .#packages.$TARGET_SYSTEM."${{ matrix.version }}" -L
 
       - name: Commit changes if changes to versions.json
         run: |
