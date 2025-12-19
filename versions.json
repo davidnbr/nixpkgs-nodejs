@@ -18,6 +18,12 @@
       "sha256": "1cpw3m45v7s7bm9mi750dkdyjgd2gp2vq0y7vr3j42ifw1i85gxv",
       "attr": "nodejs_18"
     },
+    "20.10": {
+      "version": "20.10",
+      "rev": "c407032be28ca2236f45c49cfb2b8b3885294f7f",
+      "sha256": "1a95d5g5frzgbywpq7z0az8ap99fljqk3pkm296asrvns8qcv5bv",
+      "attr": "elmPackages.nodejs"
+    },
     "20.12": {
       "version": "20.12",
       "rev": "67b4bf1df4ae54d6866d78ccbd1ac7e8a8db8b73",
