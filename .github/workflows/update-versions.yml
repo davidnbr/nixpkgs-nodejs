@@ -7,10 +7,25 @@ on:
   push:
 
 jobs:
+  generate-matrix:
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.set-matrix.outputs.matrix }}
+    steps:
+      - uses: actions/checkout@v4
+      - id: set-matrix
+        run: |
+          JSON=$(jq -c '.versions | keys' versions.json)
+          echo "matrix=$JSON" >> "$GITHUB_OUTPUT"
   update:
     runs-on: ubuntu-latest
     permissions:
       contents: write
+    needs: generate-matrix
+    strategy:
+      fail-fast: false
+      matrix:
+        version: ${{ fromJson(needs.generate-matrix.outputs.matrix) }}
 
     steps:
       - uses: actions/checkout@v4
@@ -73,17 +88,12 @@ jobs:
           echo "$UPDATED_JSON" > versions.json
           echo "✓ versions.json updated successfully."
 
-      - name: Build all packages
+      - name: Build ${{ matrix.version }} version
         run: |
           TARGET_SYSTEM="x86_64-linux"
-          TARGETS=$(nix flake show --json | \
-            jq -r --arg system "$TARGET_SYSTEM" '.packages[$system] | keys[] | ".#\"\(.)\""')
+          nix build .#packages.$TARGET_SYSTEM.\"${{ matrix.version }}\" -L
 
-          echo "Building targets: $TARGETS"
-
-          nix build $TARGETS --print-build-logs
-
-      - name: Commit changes
+      - name: Commit changes if changes to versions.json
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
