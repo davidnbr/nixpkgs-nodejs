@@ -1,5 +1,11 @@
 {
   "versions": {
+    "14.21": {
+      "version": "14.21",
+      "rev": "9957cd48326fe8dbd52fdc50dd2502307f188b0d",
+      "sha256": "",
+      "attr": "nodejs_14"
+    },
     "16.14": {
       "version": "16.14",
       "rev": "d1c3fea7ecbed758168787fe4e4a3157e52bc808",
