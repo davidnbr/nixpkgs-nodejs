@@ -129,7 +129,7 @@ jobs:
       - name: Verify Cachix upload
         run: |
           # Check that the build output exists in the store
-          OUT_PATH=$(nix build .#packages.$TARGET_SYSTEM."${{ matrix.version }}" --print-out-paths --no-link)
+          OUT_PATH=$(nix build .#packages.$TARGET_SYSTEM.\"${{ matrix.version }}\" --print-out-paths --no-link)
           echo "Built package at: $OUT_PATH"
 
           # Query the store to ensure it's available
