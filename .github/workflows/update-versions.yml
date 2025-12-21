@@ -94,7 +94,6 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/checkout@v4
         with:
           ref: ${{ github.ref }}
 
@@ -129,9 +128,8 @@ jobs:
       - name: Verify Cachix upload
         run: |
           TARGET_SYSTEM="x86_64-linux"
-          # Check that the build output exists in the store
+
           OUT_PATH=$(nix build .#packages.$TARGET_SYSTEM.\"${{ matrix.version }}\" --print-out-paths --no-link)
           echo "Built package at: $OUT_PATH"
 
-          # Query the store to ensure it's available
           nix path-info "$OUT_PATH" --store https://nixpkgs-nodejs.cachix.org || echo "Warning: Package may not be in cache yet"
