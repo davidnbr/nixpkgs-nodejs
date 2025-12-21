@@ -21,7 +21,6 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write
-    needs: generate-matrix
 
     steps:
       - uses: actions/checkout@v4
