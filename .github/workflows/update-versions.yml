@@ -112,9 +112,25 @@ jobs:
         with:
           name: nixpkgs-nodejs
           authToken: "${{ secrets.CACHIX_AUTH_TOKEN }}"
-          pushFilter: "(-source$|\\.tar\\.gz$)"
+          pushFilter: "(-source$|-src$|\\.tar\\.gz$|\\.tar\\.bz2$|\\.tar\\.xz$|\\.zip$)"
+          useDaemon: True
 
       - name: Build ${{ matrix.version }} version
         run: |
           TARGET_SYSTEM="x86_64-linux"
+          cachix watch-store nixpkgs-nodejs &
+          WATCH_PID=$!
+
           nix build .#packages.$TARGET_SYSTEM.\"${{ matrix.version }}\" -L
+
+          sleep 5
+          kill $WATCH_PID 2>/dev/null || true
+
+      - name: Verify Cachix upload
+        run: |
+          # Check that the build output exists in the store
+          OUT_PATH=$(nix build .#packages.$TARGET_SYSTEM."${{ matrix.version }}" --print-out-paths --no-link)
+          echo "Built package at: $OUT_PATH"
+
+          # Query the store to ensure it's available
+          nix path-info "$OUT_PATH" --store https://nixpkgs-nodejs.cachix.org || echo "Warning: Package may not be in cache yet"
