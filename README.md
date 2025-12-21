@@ -19,7 +19,7 @@ Inspired by [nixpkgs-terraform](https://github.com/stackbuilders/nixpkgs-terrafo
 {
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
-    nixpkgs-nodejs.url = "github:YOUR_USERNAME/nixpkgs-nodejs";
+    nixpkgs-nodejs.url = "github:davidnbr/nixpkgs-nodejs";
   };
 
   outputs = { self, nixpkgs, nixpkgs-nodejs }:
@@ -39,13 +39,13 @@ Inspired by [nixpkgs-terraform](https://github.com/stackbuilders/nixpkgs-terrafo
 ### Ad-hoc Shell
 
 ```bash
-nix shell github:YOUR_USERNAME/nixpkgs-nodejs#"20.11.0"
+nix shell github:davidnbr/nixpkgs-nodejs#"20.11.0"
 ```
 
 ### List Available Versions
 
 ```bash
-nix flake show github:YOUR_USERNAME/nixpkgs-nodejs
+nix flake show github:davidnbr/nixpkgs-nodejs
 ```
 
 ## Binary Cache
@@ -56,7 +56,7 @@ Add to your `flake.nix`:
 nixConfig = {
   extra-substituters = ["https://nixpkgs-nodejs.cachix.org"];
   extra-trusted-public-keys = [
-    "nixpkgs-nodejs.cachix.org-1:YOUR_KEY_HERE"
+    "nixpkgs-nodejs.cachix.org-1:zUIFXIRHGVtNSAhYWPDOIpr/4hAvhUEfcRo78RWDgiI="
   ];
 };
 ```
@@ -65,7 +65,7 @@ Or configure globally in `~/.config/nix/nix.conf`:
 
 ```
 extra-substituters = https://nixpkgs-nodejs.cachix.org
-extra-trusted-public-keys = nixpkgs-nodejs.cachix.org-1:YOUR_KEY_HERE
+extra-trusted-public-keys = nixpkgs-nodejs.cachix.org-1:YzUIFXIRHGVtNSAhYWPDOIpr/4hAvhUEfcRo78RWDgiI=
 ```
 
 ## Development
