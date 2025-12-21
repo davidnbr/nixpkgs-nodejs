@@ -6,7 +6,7 @@ Inspired by [nixpkgs-terraform](https://github.com/stackbuilders/nixpkgs-terrafo
 
 ## Features
 
-- 🔄 **Automatic Updates**: Weekly updates via GitHub Actions
+- 🔄 **Automatic Updates**: Automatic updates via GitHub Actions
 - 📦 **Binary Cache**: Pre-built packages via Cachix
 - 🎯 **Version Precision**: Access any Node.js version from 16.0.0+
 - 🔒 **Reproducible**: Locked to specific nixpkgs commits
@@ -69,12 +69,6 @@ extra-trusted-public-keys = nixpkgs-nodejs.cachix.org-1:YzUIFXIRHGVtNSAhYWPDOIpr
 ```
 
 ## Development
-
-Update versions manually:
-
-```bash
-./scripts/update-versions.sh
-```
 
 Build a specific version:
 
