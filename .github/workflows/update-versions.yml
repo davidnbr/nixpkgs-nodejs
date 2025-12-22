@@ -85,13 +85,15 @@ jobs:
             (git commit -m "chore: update Node.js versions" && git push)
 
   build:
-    runs-on: ${{ matrix.os }}
+    runs-on: ${{ matrix.runner.os }}
     needs: [generate-matrix, update]
     strategy:
       fail-fast: false
       matrix:
         version: ${{ fromJson(needs.generate-matrix.outputs.matrix) }}
-        os: [ubuntu-latest, macos-latest]
+        runner:
+          - { system: aarch64-darwin, os: macos-latest }
+          - { system: x86_64-linux, os: ubuntu-latest }
 
     steps:
       - uses: actions/checkout@v4
@@ -117,7 +119,7 @@ jobs:
 
       - name: Build ${{ matrix.version }} version
         run: |
-          TARGET_SYSTEM=${{ runner.arch }}
+          TARGET_SYSTEM=${{ matrix.runner.system }}
           cachix watch-store nixpkgs-nodejs &
           WATCH_PID=$!
 
@@ -128,7 +130,7 @@ jobs:
 
       - name: Verify Cachix upload
         run: |
-          TARGET_SYSTEM=${{ runner.arch }}
+          TARGET_SYSTEM=${{ matrix.runner.system }}
 
           OUT_PATH=$(nix build .#packages.$TARGET_SYSTEM.\"${{ matrix.version }}\" --print-out-paths --no-link)
           echo "Built package at: $OUT_PATH"
