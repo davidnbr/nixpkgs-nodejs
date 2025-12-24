@@ -32,8 +32,8 @@
     },
     "18.18": {
       "version": "18.18",
-      "rev": "bf85265bb302cdfe137e06bb207cb63aaaa726e8",
-      "sha256": "15h6lz3b9vlpgphs2yqfklqfkxwi72cajf33066nlv12qs43vfs7",
+      "rev": "b034e4cbf12f7c0d749674c102e31e6a47fa2d7f",
+      "sha256": "1xb16154bir6pykr2mz5gkqziqa6smblwpk7vh265x01fdhfh1qk",
       "attr": "nodejs_18"
     },
     "18.20": {
