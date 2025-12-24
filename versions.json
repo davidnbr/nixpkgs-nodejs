@@ -14,8 +14,8 @@
     },
     "16.18": {
       "version": "16.18",
-      "rev": "3c3b3ab88a34ff8026fc69cb78febb9ec9aedb16",
-      "sha256": "19ag9878rzd9fqch0gcpgkhbdxssa08lmqwbixhr06q0h00xixxx",
+      "rev": "a3d5f09dfd7134153136d3153820a0642898cc9d",
+      "sha256": "1lp6qwdh1kp42dyravkxwj2qnsb3ngi1a5gmd9hzlds1r5q5bzrb",
       "attr": "nodejs-16_x"
     },
     "16.20": {
@@ -26,15 +26,15 @@
     },
     "18.16": {
       "version": "18.16",
-      "rev": "50a7139fbd1acd4a3d4cfa695e694c529dd26f3a",
-      "sha256": "1rh75qfcdbczm2rdzqni21xj0wc8f92mhnpwq5mv3z0yy8f35krl",
-      "attr": "elmPackages.nodejs"
+      "rev": "75f22e0d83812b4b95e9a83e9fe7025df8c39d98",
+      "sha256": "1aqiwpx6i69fr37a92n9s5ljqp3r13b37yfpryayggk01wq8fjaf",
+      "attr": "nodejs_18"
     },
     "18.18": {
       "version": "18.18",
-      "rev": "459104f841356362bfb9ce1c788c1d42846b2454",
-      "sha256": "1s34wcx14klzcvxwhfdyx4hq2q2rfzk6lgivr5mw6bi2mxn5844f",
-      "attr": "elmPackages.nodejs"
+      "rev": "bf85265bb302cdfe137e06bb207cb63aaaa726e8",
+      "sha256": "15h6lz3b9vlpgphs2yqfklqfkxwi72cajf33066nlv12qs43vfs7",
+      "attr": "nodejs_18"
     },
     "18.20": {
       "version": "18.20",
@@ -50,9 +50,9 @@
     },
     "20.10": {
       "version": "20.10",
-      "rev": "c407032be28ca2236f45c49cfb2b8b3885294f7f",
-      "sha256": "1a95d5g5frzgbywpq7z0az8ap99fljqk3pkm296asrvns8qcv5bv",
-      "attr": "elmPackages.nodejs"
+      "rev": "120a67bbfa93d9fd830310344cae0291068318bd",
+      "sha256": "1iyamrjpkzwg4j790jjwbpy50a01l0dsdnnf5g7rzccl0zlg93ck",
+      "attr": "nodejs_20"
     },
     "20.12": {
       "version": "20.12",
