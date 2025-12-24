@@ -56,9 +56,9 @@
     },
     "20.12": {
       "version": "20.12",
-      "rev": "67b4bf1df4ae54d6866d78ccbd1ac7e8a8db8b73",
-      "sha256": "07gzgcgaclgand7j99w45r07gc464b5jbpaa3wmv6nzwzdb3v3q4",
-      "attr": "elmPackages.nodejs"
+      "rev": "655ba319013eacae89bd20aa5b793613c8baeefd",
+      "sha256": "1nmqshjs559yvscai87nqp87ig8prxhp2n20m424vh9zbisa0grk",
+      "attr": "nodejs_20"
     },
     "20.14": {
       "version": "20.14",
