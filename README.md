@@ -27,9 +27,11 @@ Inspired by [nixpkgs-terraform](https://github.com/stackbuilders/nixpkgs-terrafo
       system = "x86_64-linux";
       pkgs = nixpkgs.legacyPackages.${system};
     in {
-      devShells.${system}.default = pkgs.mkShell {
+    devShells.${system}.default = pkgs.mkShell {
         packages = [
-          nixpkgs-nodejs.packages.${system}."20.11"
+          nixpkgs-nodejs.packages.${system}.nodejs_22_22
+          # Or if you need yarn specifically linked to that node
+          # nixpkgs-nodejs.packages.${system}.yarn_22_22
         ];
       };
     };
@@ -39,9 +41,43 @@ Inspired by [nixpkgs-terraform](https://github.com/stackbuilders/nixpkgs-terrafo
 ### Ad-hoc Shell
 
 ```bash
-nix shell github:davidnbr/nixpkgs-nodejs#'"20.11"'
-# Or using the alias (friendly for Nix expressions)
-nix shell github:davidnbr/nixpkgs-nodejs#nodejs_20_11
+# Get Node.js + NPM
+nix shell github:davidnbr/nixpkgs-nodejs#nodejs_22_22
+
+# Get Node.js + Yarn (bundled)
+nix shell github:davidnbr/nixpkgs-nodejs#yarn_22_22
+
+# Get Node.js + Pnpm (bundled)
+nix shell github:davidnbr/nixpkgs-nodejs#pnpm_22_22
+```
+
+### Using as an Overlay
+
+You can integrate these versions directly into your `nixpkgs` set using the provided overlay:
+
+```nix
+{
+  inputs.nixpkgs-nodejs.url = "github:davidnbr/nixpkgs-nodejs";
+  
+  outputs = { self, nixpkgs, nixpkgs-nodejs }: {
+    pkgs = import nixpkgs {
+      system = "x86_64-linux";
+      overlays = [ nixpkgs-nodejs.overlays.default ];
+    };
+    
+    # Now you can use them like standard packages
+    # pkgs.nodejs_22_22
+    # pkgs.yarn_22_22
+  };
+}
+```
+
+### Formatting
+
+This flake provides a formatter for your Nix code:
+
+```bash
+nix fmt
 ```
 
 ### List Available Versions

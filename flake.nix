@@ -54,6 +54,8 @@
       # Generate all packages for a given system
       packagesForSystem = system:
         let
+          pkgs = nixpkgs.legacyPackages.${system};
+          
           basePackages = builtins.mapAttrs
             (version: versionInfo: lib.getNodejs { inherit system version; })
             versionMap;
@@ -65,17 +67,50 @@
               pkg
             )
             basePackages;
+
+          # Create yarn packages bundled with the specific node version
+          yarnPackages = nixpkgs.lib.mapAttrs'
+            (version: pkg: nixpkgs.lib.nameValuePair 
+              ("yarn_" + (builtins.replaceStrings ["."] ["_"] version)) 
+              (pkgs.symlinkJoin {
+                name = "yarn-" + version;
+                paths = [ (pkgs.yarn.override { nodejs = pkg; }) pkg ];
+              })
+            )
+            basePackages;
+
+          # Create pnpm packages bundled with the specific node version
+          pnpmPackages = nixpkgs.lib.mapAttrs'
+            (version: pkg: nixpkgs.lib.nameValuePair 
+              ("pnpm_" + (builtins.replaceStrings ["."] ["_"] version)) 
+              (pkgs.symlinkJoin {
+                name = "pnpm-" + version;
+                paths = [ (pkgs.pnpm.override { nodejs = pkg; }) pkg ];
+              })
+            )
+            basePackages;
         in
-          basePackages // aliases;
+          basePackages // aliases // yarnPackages // pnpmPackages;
     in
     {
-      # Packages for all systems
+      # Standard Flake Outputs
       packages = forAllSystems (system: 
         (packagesForSystem system) // {
           # Default to latest LTS (22.22)
           default = (packagesForSystem system)."22.22";
         }
       );
+
+      # Overlay allows users to use these packages in their own nixpkgs instance
+      overlays.default = final: prev: 
+        let
+          # We need to compute packages for the specific system of the final pkgs
+          pkgsForSystem = packagesForSystem final.system;
+        in
+          pkgsForSystem;
+
+      # Formatter for the project
+      formatter = forAllSystems (system: nixpkgs.legacyPackages.${system}.nixpkgs-fmt);
 
       # Library functions for integration (compatible with asdf2nix API)
       inherit lib;
