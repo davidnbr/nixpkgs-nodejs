@@ -39,7 +39,9 @@ Inspired by [nixpkgs-terraform](https://github.com/stackbuilders/nixpkgs-terrafo
 ### Ad-hoc Shell
 
 ```bash
-nix shell github:davidnbr/nixpkgs-nodejs#"20.11.0"
+nix shell github:davidnbr/nixpkgs-nodejs#"20.11"
+# Or using the alias (friendly for Nix expressions)
+nix shell github:davidnbr/nixpkgs-nodejs#nodejs_20_11
 ```
 
 ### List Available Versions
