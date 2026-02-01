@@ -53,9 +53,20 @@
 
       # Generate all packages for a given system
       packagesForSystem = system:
-        builtins.mapAttrs
-          (version: versionInfo: lib.getNodejs { inherit system version; })
-          versionMap;
+        let
+          basePackages = builtins.mapAttrs
+            (version: versionInfo: lib.getNodejs { inherit system version; })
+            versionMap;
+          
+          # Create aliases like nodejs_20_18 for 20.18
+          aliases = nixpkgs.lib.mapAttrs'
+            (version: pkg: nixpkgs.lib.nameValuePair 
+              ("nodejs_" + (builtins.replaceStrings ["."] ["_"] version)) 
+              pkg
+            )
+            basePackages;
+        in
+          basePackages // aliases;
     in
     {
       # Packages for all systems
