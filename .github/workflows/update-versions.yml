@@ -120,19 +120,27 @@ jobs:
       - name: Build ${{ matrix.version }} version
         run: |
           TARGET_SYSTEM=${{ matrix.runner.system }}
+          # Convert version (e.g., "20.20") to alias (e.g., "nodejs_20_20")
+          VERSION_ALIAS="nodejs_${{ matrix.version }}"
+          VERSION_ALIAS=${VERSION_ALIAS//./_}
+
           cachix watch-store nixpkgs-nodejs &
           WATCH_PID=$!
 
-          nix build .#packages.$TARGET_SYSTEM.\"${{ matrix.version }}\" -L
+          echo "Building $VERSION_ALIAS for $TARGET_SYSTEM..."
+          nix build .#packages.$TARGET_SYSTEM.$VERSION_ALIAS -L
 
           sleep 5
           kill $WATCH_PID 2>/dev/null || true
 
-      - name: Verify Cachix upload
+      - name: Verify Build Path
         run: |
           TARGET_SYSTEM=${{ matrix.runner.system }}
+          VERSION_ALIAS="nodejs_${{ matrix.version }}"
+          VERSION_ALIAS=${VERSION_ALIAS//./_}
 
-          OUT_PATH=$(nix build .#packages.$TARGET_SYSTEM.\"${{ matrix.version }}\" --print-out-paths --no-link)
+          OUT_PATH=$(nix path-info .#packages.$TARGET_SYSTEM.$VERSION_ALIAS)
           echo "Built package at: $OUT_PATH"
-
-          nix path-info "$OUT_PATH" --store https://nixpkgs-nodejs.cachix.org || echo "Warning: Package may not be in cache yet"
+          
+          # Optional: Check if it's valid locally
+          nix path-info "$OUT_PATH" > /dev/null
