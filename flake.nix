@@ -61,8 +61,8 @@
       # Packages for all systems
       packages = forAllSystems (system: 
         (packagesForSystem system) // {
-          # Default to latest LTS (20.18)
-          default = (packagesForSystem system)."20.18";
+          # Default to latest LTS (22.22)
+          default = (packagesForSystem system)."22.22";
         }
       );
 
