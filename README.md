@@ -29,7 +29,7 @@ Inspired by [nixpkgs-terraform](https://github.com/stackbuilders/nixpkgs-terrafo
     in {
       devShells.${system}.default = pkgs.mkShell {
         packages = [
-          nixpkgs-nodejs.packages.${system}.'"20.11.0"'
+          nixpkgs-nodejs.packages.${system}."20.11"
         ];
       };
     };
