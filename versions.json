@@ -78,6 +78,18 @@
       "sha256": "0vx2pw69if88nkfh74bf1a8s5497n2nv7wydmvmqh5qh00fsahvq",
       "attr": "nodejs_20"
     },
+    "20.19": {
+      "version": "20.19",
+      "rev": "3fbab70c6e69c87ea2b6e48aa6629da2aa6a23b0",
+      "sha256": "1ywbaccrkch034xnbv0yyh2xqwnyik9yx0fqspagnj24d3mcagwk",
+      "attr": "nodejs_20"
+    },
+    "20.20": {
+      "version": "20.20",
+      "rev": "13b0f9e6ac78abbbb736c635d87845c4f4bee51b",
+      "sha256": "0js8a1abl5mi1j0l9wiasis8srm1a7wjrd3scwb8xpq3i0amvz8r",
+      "attr": "nodejs_20"
+    },
     "22.4": {
       "version": "22.4",
       "rev": "efcb904a6c674d1d3717b06b89b54d65104d4ea7",
@@ -95,6 +107,78 @@
       "rev": "882842d2a908700540d206baa79efb922ac1c33d",
       "sha256": "105v2h9gpaxq6b5035xb10ykw9i3b3k1rwfq4s6inblphiz5yw7q",
       "attr": "nodejs_22"
+    },
+    "22.14": {
+      "version": "22.14",
+      "rev": "6ad174a6dc07c7742fc64005265addf87ad08615",
+      "sha256": "02xrcfn2agd8zcwx0slckl3f1r0x64fjyzhlrrfxswdrq987vcxs",
+      "attr": "nodejs_22"
+    },
+    "22.21": {
+      "version": "22.21",
+      "rev": "61db79b0c6b838d9894923920b612048e1201926",
+      "sha256": "1zihs797ra009jl5knx7p4qk38wa1rmarfy286y8ywjv5wbx35l7",
+      "attr": "nodejs_22"
+    },
+    "22.22": {
+      "version": "22.22",
+      "rev": "13b0f9e6ac78abbbb736c635d87845c4f4bee51b",
+      "sha256": "0js8a1abl5mi1j0l9wiasis8srm1a7wjrd3scwb8xpq3i0amvz8r",
+      "attr": "nodejs_22"
+    },
+    "23.9": {
+      "version": "23.9",
+      "rev": "573c650e8a14b2faa0041645ab18aed7e60f0c9a",
+      "sha256": "0qg99zj0gb0pc6sjlkmwhk1c1xz14qxmk6gamgfmcxpsfdp5vn72",
+      "attr": "nodejs_23"
+    },
+    "23.10": {
+      "version": "23.10",
+      "rev": "dd613136ee91f67e5dba3f3f41ac99ae89c5406b",
+      "sha256": "06fdml9pxm8lfm24i3q36a43ysl1hldjc49ayddpcfzw5mki0m25",
+      "attr": "nodejs_23"
+    },
+    "23.11": {
+      "version": "23.11",
+      "rev": "ed30f8aba41605e3ab46421e3dcb4510ec560ff8",
+      "sha256": "0mg2wzzzakbb33z1a1qrlslr8q84j1ci9j53p9dj8nggmm2xv0p6",
+      "attr": "nodejs_23"
+    },
+    "24.10": {
+      "version": "24.10",
+      "rev": "1666250dbe4141e4ca8aaf89b40a3a51c2e36144",
+      "sha256": "16k686d1zp9vjnxb8y7fnj1n182rsr6gn9cg8b5j00ah4bls92dh",
+      "attr": "nodejs_24"
+    },
+    "24.11": {
+      "version": "24.11",
+      "rev": "af84f9d270d404c17699522fab95bbf928a2d92f",
+      "sha256": "103krh780jk8dxvyhwmmsi1q785qah8q2fc7600b53b76d9xd654",
+      "attr": "nodejs_24"
+    },
+    "24.12": {
+      "version": "24.12",
+      "rev": "346dd96ad74dc4457a9db9de4f4f57dab2e5731d",
+      "sha256": "1f29niwab1n3xmwp5zss0b03wzyzr1nslzx2d3aiz7pvyxrimyzd",
+      "attr": "nodejs_24"
+    },
+    "25.2": {
+      "version": "25.2",
+      "rev": "16c7794d0a28b5a37904d55bcca36003b9109aaa",
+      "sha256": "1931vmgdclk332ikh7psxha1bskvrjwqrqm8a3xwcsr5hc8jfmbw",
+      "attr": "nodejs_25"
+    },
+    "25.3": {
+      "version": "25.3",
+      "rev": "3327b113f2ef698d380df83fbccefad7e83d7769",
+      "sha256": "0lwk5p0lqy5nm1k3xfjfgfy1fm2qp4py0wcgfjlz6j88na70x71h",
+      "attr": "nodejs_25"
+    },
+    "25.4": {
+      "version": "25.4",
+      "rev": "13b0f9e6ac78abbbb736c635d87845c4f4bee51b",
+      "sha256": "0js8a1abl5mi1j0l9wiasis8srm1a7wjrd3scwb8xpq3i0amvz8r",
+      "attr": "nodejs_25"
     }
   }
 }
