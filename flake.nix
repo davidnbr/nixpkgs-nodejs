@@ -93,13 +93,24 @@
           basePackages // aliases // yarnPackages // pnpmPackages;
     in
     {
-      # Packages for all systems
+      # Standard Flake Outputs
       packages = forAllSystems (system: 
         (packagesForSystem system) // {
           # Default to latest LTS (22.22)
           default = (packagesForSystem system)."22.22";
         }
       );
+
+      # Overlay allows users to use these packages in their own nixpkgs instance
+      overlays.default = final: prev: 
+        let
+          # We need to compute packages for the specific system of the final pkgs
+          pkgsForSystem = packagesForSystem final.system;
+        in
+          pkgsForSystem;
+
+      # Formatter for the project
+      formatter = forAllSystems (system: nixpkgs.legacyPackages.${system}.nixpkgs-fmt);
 
       # Library functions for integration (compatible with asdf2nix API)
       inherit lib;

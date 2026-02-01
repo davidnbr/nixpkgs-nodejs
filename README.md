@@ -51,6 +51,35 @@ nix shell github:davidnbr/nixpkgs-nodejs#yarn_22_22
 nix shell github:davidnbr/nixpkgs-nodejs#pnpm_22_22
 ```
 
+### Using as an Overlay
+
+You can integrate these versions directly into your `nixpkgs` set using the provided overlay:
+
+```nix
+{
+  inputs.nixpkgs-nodejs.url = "github:davidnbr/nixpkgs-nodejs";
+  
+  outputs = { self, nixpkgs, nixpkgs-nodejs }: {
+    pkgs = import nixpkgs {
+      system = "x86_64-linux";
+      overlays = [ nixpkgs-nodejs.overlays.default ];
+    };
+    
+    # Now you can use them like standard packages
+    # pkgs.nodejs_22_22
+    # pkgs.yarn_22_22
+  };
+}
+```
+
+### Formatting
+
+This flake provides a formatter for your Nix code:
+
+```bash
+nix fmt
+```
+
 ### List Available Versions
 
 ```bash
