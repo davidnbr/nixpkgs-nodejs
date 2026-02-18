@@ -12,6 +12,38 @@ Inspired by [nixpkgs-terraform](https://github.com/stackbuilders/nixpkgs-terrafo
 - 🔒 **Reproducible**: Locked to specific nixpkgs commits
 
 ## Usage
+### With [devenv](https://devenv.sh/)
+```yaml
+# devenv.yaml
+inputs:
+  nixpkgs:
+    url: github:cachix/devenv-nixpkgs/rolling
+  nixpkgs-nodejs:
+    url: github:davidnbr/nixpkgs-nodejs
+    overlays:
+      - default
+```
+
+```nix
+# devenv.nix
+{ pkgs, ... }:
+
+{
+  cachix.pull = [ "nixpkgs-nodejs" ];
+
+  languages = {
+    javascript = {
+      enable = true;
+      package = pkgs.nodejs_22_22; # You can also use pnpm_22_22 or yarn_22_22 if you want to use them bundled.
+    };
+  };
+
+  enterShell = ''
+    echo "Node running in $(which node)"
+    echo "Node version: $(node --version)"
+  '';
+}
+```
 
 ### With Flakes
 
@@ -35,6 +67,13 @@ Inspired by [nixpkgs-terraform](https://github.com/stackbuilders/nixpkgs-terrafo
         ];
       };
     };
+
+  nixConfig = {
+    extra-substituters = ["https://nixpkgs-nodejs.cachix.org"];
+    extra-trusted-public-keys = [
+      "nixpkgs-nodejs.cachix.org-1:zUIFXIRHGVtNSAhYWPDOIpr/4hAvhUEfcRo78RWDgiI="
+    ];
+  };
 }
 ```
 
@@ -72,14 +111,6 @@ You can integrate these versions directly into your `nixpkgs` set using the prov
 }
 ```
 
-### Formatting
-
-This flake provides a formatter for your Nix code:
-
-```bash
-nix fmt
-```
-
 ### List Available Versions
 
 ```bash
@@ -108,10 +139,10 @@ extra-trusted-public-keys = nixpkgs-nodejs.cachix.org-1:YzUIFXIRHGVtNSAhYWPDOIpr
 
 ## Development
 
-Build a specific version:
+Build a specific version in the repo:
 
 ```bash
-nix build .#"20.11.0"
+nix build .#'"22.22"'
 ```
 
 ## License
