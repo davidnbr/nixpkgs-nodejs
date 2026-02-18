@@ -30,10 +30,6 @@ readonly MAX_MAJOR=26
 readonly MAX_PAGES=3
 readonly API_DELAY=0.5
 
-# =============================================================================
-# Colors (disabled if not a terminal)
-# =============================================================================
-
 if [[ -t 1 ]]; then
   readonly RED='\033[0;31m'
   readonly GREEN='\033[0;32m'
@@ -43,10 +39,6 @@ if [[ -t 1 ]]; then
 else
   readonly RED='' GREEN='' YELLOW='' BLUE='' NC=''
 fi
-
-# =============================================================================
-# Logging
-# =============================================================================
 
 log() {
   local -r level="$1"
@@ -68,10 +60,6 @@ die() {
   exit 1
 }
 
-# =============================================================================
-# Dependencies
-# =============================================================================
-
 check_dependencies() {
   local -ra deps=(jq curl nix-prefetch-git)
   local dep
@@ -81,11 +69,6 @@ check_dependencies() {
   done
 }
 
-# =============================================================================
-# GitHub API
-# =============================================================================
-
-# Make authenticated request if token available, otherwise unauthenticated
 github_api() {
   local -r endpoint="$1"
   local -r url="${GITHUB_API_URL}${endpoint}"
@@ -98,7 +81,6 @@ github_api() {
   fi
 }
 
-# Fetch commits matching query
 fetch_commits() {
   local -r query="$1"
   local -a results=()
@@ -131,11 +113,6 @@ fetch_commits() {
   printf '%s\n' "${results[@]}"
 }
 
-# =============================================================================
-# Version Utilities
-# =============================================================================
-
-# Get nixpkgs attribute name for a major version
 get_attr_name() {
   local -r major="$1"
   local attr
@@ -156,40 +133,30 @@ get_attr_name() {
   echo "$attr"
 }
 
-# Extract semantic version from commit message
 extract_version() {
   local -r msg="$1"
   echo "$msg" | grep -oE '[0-9]+\.[0-9]+\.[0-9]+' | head -1 || true
 }
 
-# Validate version format (x.y.z)
 is_valid_version() {
   local -r version="$1"
   [[ "$version" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]
 }
 
-# Check if major version is in supported range
 is_supported_major() {
   local -r major="$1"
   ((major >= MIN_MAJOR && major <= MAX_MAJOR))
 }
 
-# =============================================================================
-# Version Management
-# =============================================================================
-
-# Get all existing versions from versions.json
 get_existing_versions() {
   [[ -f "$VERSIONS_FILE" ]] && jq -r '.versions | keys[]' "$VERSIONS_FILE" 2>/dev/null || true
 }
 
-# Check if version already exists
 version_exists() {
   local -r version="$1"
   [[ -f "$VERSIONS_FILE" ]] && jq -e ".versions[\"$version\"]" "$VERSIONS_FILE" &>/dev/null
 }
 
-# Fetch sha256 hash for a nixpkgs revision
 fetch_sha256() {
   local -r rev="$1"
   local sha256
@@ -200,13 +167,11 @@ fetch_sha256() {
   echo "$sha256"
 }
 
-# Add a new version to versions.json
 add_version() {
   local -r version="$1"
   local -r rev="$2"
   local -r dry_run="${3:-false}"
 
-  # Validate
   is_valid_version "$version" || {
     log warn "Invalid version format: $version"
     return 1
@@ -225,7 +190,6 @@ add_version() {
 
   log info "Adding Node.js $version..."
 
-  # Fetch hash
   local sha256
   sha256=$(fetch_sha256 "$rev")
 
@@ -239,7 +203,6 @@ add_version() {
     return 0
   fi
 
-  # Add to JSON
   local -r attr
   attr=$(get_attr_name "$major")
 
@@ -255,11 +218,6 @@ add_version() {
   log info "Added $version (sha256: ${sha256:0:30}...)"
 }
 
-# =============================================================================
-# Commands
-# =============================================================================
-
-# Discover and add new versions
 cmd_discover() {
   local -r dry_run="${1:-false}"
 
@@ -269,12 +227,10 @@ cmd_discover() {
   log info "Starting Node.js version discovery from nixpkgs..."
   log info "Target: https://github.com/${NIXPKGS_REPO}"
 
-  # Show existing versions
   local existing
   existing=$(get_existing_versions)
   log info "Existing versions: ${existing:-none}"
 
-  # Fetch commits
   log step "Searching GitHub for Node.js commits..."
 
   local -a commits
@@ -286,7 +242,6 @@ cmd_discover() {
 
   log step "Processing ${#commits[@]} commits..."
 
-  # Extract versions (keep first occurrence = most recent)
   local -A seen_versions
   local -a version_data=()
 
@@ -306,11 +261,9 @@ cmd_discover() {
     version_data+=("$version|$commit_sha")
   done
 
-  # Sort by version
   local sorted_versions
   sorted_versions=$(printf '%s\n' "${version_data[@]}" | sort -t'|' -k1 -V)
 
-  # Add versions in range
   local added=0
 
   while IFS='|' read -r version rev; do
@@ -319,7 +272,6 @@ cmd_discover() {
     local major="${version%%.*}"
 
     if is_supported_major "$major"; then
-      # In dry-run, skip existence check and show what would happen
       if [[ "$dry_run" == "true" ]] && version_exists "$version"; then
         log info "Version $version already exists, would skip"
         continue
@@ -340,7 +292,6 @@ cmd_discover() {
   jq -r '.versions | length' "$VERSIONS_FILE" | xargs echo "Total versions:"
 }
 
-# List all versions
 cmd_list() {
   [[ -f "$VERSIONS_FILE" ]] || die "versions.json not found"
 
@@ -350,7 +301,6 @@ cmd_list() {
     sort -t: -k1 -V
 }
 
-# Add specific version
 cmd_add() {
   local -r version="${1:-}"
 
@@ -380,10 +330,6 @@ cmd_add() {
   die "Could not find Node.js $version in nixpkgs"
 }
 
-# =============================================================================
-# Main
-# =============================================================================
-
 usage() {
   cat <<EOF
 Usage: $(basename "$0") [command] [options]
@@ -406,7 +352,6 @@ EOF
 main() {
   local dry_run="false"
 
-  # Parse arguments
   while [[ $# -gt 0 ]]; do
     case "$1" in
     --dry-run)
