@@ -12,6 +12,12 @@
       "sha256": "0ykm15a690v8lcqf2j899za3j6hak1rm3xixdxsx33nz7n3swsyy",
       "attr": "nodejs"
     },
+    "16.15": {
+      "version": "16.15",
+      "rev": "97d05d24b60dfbdb48b45fc02f95a3afe60cb0aa",
+      "sha256": "0ax3kybywnff2zwsr9l4afc6z0mqc20pyq3ckxkdgmb1xyhxqh0r",
+      "attr": "nodejs-16_x"
+    },
     "16.18": {
       "version": "16.18",
       "rev": "a3d5f09dfd7134153136d3153820a0642898cc9d",
@@ -90,6 +96,12 @@
       "sha256": "0js8a1abl5mi1j0l9wiasis8srm1a7wjrd3scwb8xpq3i0amvz8r",
       "attr": "nodejs_20"
     },
+    "22.0": {
+      "version": "22.0",
+      "rev": "8a9a1e6369d83265d9a21dc62ced894b3e08edb4",
+      "sha256": "181rvmx8zvf6jyjk4v8znyxksaclnq51bidpbnnpk2pg1wlgvczb",
+      "attr": "nodejs_22"
+    },
     "22.4": {
       "version": "22.4",
       "rev": "efcb904a6c674d1d3717b06b89b54d65104d4ea7",
@@ -106,6 +118,12 @@
       "version": "22.10",
       "rev": "882842d2a908700540d206baa79efb922ac1c33d",
       "sha256": "105v2h9gpaxq6b5035xb10ykw9i3b3k1rwfq4s6inblphiz5yw7q",
+      "attr": "nodejs_22"
+    },
+    "22.12": {
+      "version": "22.12",
+      "rev": "77a51c84590db1ca1bc11d56f2d01efbb71d7681",
+      "sha256": "0ls53apjz7mlwic6rlxbmgc6yvi6kqzwmbypikk5c0isnwwnpxd2",
       "attr": "nodejs_22"
     },
     "22.14": {
