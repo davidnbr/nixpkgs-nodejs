@@ -6,6 +6,13 @@
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
   };
 
+  nixConfig = {
+    extra-substituters = [ "https://nixpkgs-nodejs.cachix.org" ];
+    extra-trusted-public-keys = [
+      "nixpkgs-nodejs.cachix.org-1:zUIFXIRHGVtNSAhYWPDOIpr/4hAvhUEfcRo78RWDgiI="
+    ];
+  };
+
   outputs =
     { self, nixpkgs }:
     let
@@ -137,12 +144,5 @@
 
       # Library functions for integration (compatible with asdf2nix API)
       inherit lib;
-
-      nixConfig = {
-        extra-substituters = [ "https://nixpkgs-nodejs.cachix.org" ];
-        extra-trusted-public-keys = [
-          "nixpkgs-nodejs.cachix.org-1:zUIFXIRHGVtNSAhYWPDOIpr/4hAvhUEfcRo78RWDgiI="
-        ];
-      };
     };
 }
