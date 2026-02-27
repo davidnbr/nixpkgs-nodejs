@@ -11,8 +11,14 @@ jobs:
         with:
           extra_nix_config: |
             experimental-features = nix-command flakes
+            extra-trusted-
           set_as_trusted_user: true
           nix_path: nixpkgs=channel:nixos-unstable
-      - run: nix run github:nix-community/nixpkgs-lint .
-      - run: nix run github:NixOS/nix-fmt .
-      - run: nix flake check
+      - uses: cachix/cachix-action@v31
+        with:
+          extraPullNames: |
+            nix-community
+            devenv
+      - run: nix profile add nixpkgs#devenv
+      - run: devenv shell -- nixpkgs-lint .
+      - run: devenv shell -- treefmt .
