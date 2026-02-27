@@ -126,7 +126,7 @@ jobs:
           WATCH_PID=$!
 
           echo "Building ${{ matrix.version }} for $TARGET_SYSTEM..."
-          nix build .#packages.$TARGET_SYSTEM.\"${{ matrix.version }}\" -L
+          nix build .#packages.$TARGET_SYSTEM.\"${{ matrix.version }}\" -L --accept-flake-config
 
           sleep 5
           kill $WATCH_PID 2>/dev/null || true
@@ -134,7 +134,7 @@ jobs:
       - name: Verify Build Path
         run: |
           TARGET_SYSTEM=${{ matrix.runner.system }}
-          OUT_PATH=$(nix path-info .#packages.$TARGET_SYSTEM.\"${{ matrix.version }}\")
+          OUT_PATH=$(nix path-info .#packages.$TARGET_SYSTEM.\"${{ matrix.version }}\" --accept-flake-config)
           echo "Built package at: $OUT_PATH"
 
           # Check if it's valid locally
