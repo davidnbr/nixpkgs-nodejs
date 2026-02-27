@@ -11,7 +11,6 @@ jobs:
         with:
           extra_nix_config: |
             experimental-features = nix-command flakes
-            extra-trusted-
           set_as_trusted_user: true
           nix_path: nixpkgs=channel:nixos-unstable
       - uses: cachix/cachix-action@v16
