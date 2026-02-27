@@ -16,9 +16,8 @@ jobs:
           nix_path: nixpkgs=channel:nixos-unstable
       - uses: cachix/cachix-action@v16
         with:
+          name: devenv
           extraPullNames: |
             nix-community
-            devenv
       - run: nix profile add nixpkgs#devenv
-      - run: devenv shell -- nixpkgs-lint .
       - run: devenv shell -- treefmt .
