@@ -12,7 +12,8 @@
 set -euo pipefail
 IFS=$'\n\t'
 
-readonly SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+readonly SCRIPT_DIR
 readonly VERSIONS_FILE="${SCRIPT_DIR}/../versions.json"
 readonly NIXPKGS_REPO="NixOS/nixpkgs"
 readonly GITHUB_API_URL="https://api.github.com"
@@ -216,7 +217,9 @@ add_version() {
     return 1
   }
 
-  local -r attr=$(resolve_attr_name "$major" "$rev")
+  local attr
+  attr=$(resolve_attr_name "$major" "$rev")
+  readonly attr
 
   local tmp
   tmp=$(make_temp)
