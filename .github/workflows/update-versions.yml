@@ -5,25 +5,19 @@ on:
     - cron: "0 0 * * 1"
   workflow_dispatch:
   push:
+    branches: [main]
 
 jobs:
-  generate-matrix:
-    runs-on: ubuntu-latest
-    outputs:
-      matrix: ${{ steps.set-matrix.outputs.matrix }}
-    steps:
-      - uses: actions/checkout@v4
-      - id: set-matrix
-        run: |
-          JSON=$(jq -c '.versions | keys' versions.json)
-          echo "matrix=$JSON" >> "$GITHUB_OUTPUT"
   update:
     runs-on: ubuntu-latest
     permissions:
       contents: write
+    outputs:
+      commit_sha: ${{ steps.commit.outputs.sha }}
 
     steps:
       - uses: actions/checkout@v4
+
       - uses: cachix/install-nix-action@v31
         with:
           extra_nix_config: |
@@ -33,56 +27,39 @@ jobs:
 
       - run: nix profile add nixpkgs#nix-prefetch-git nixpkgs#jq
 
-      - name: Caculate hashes
-        run: |
-          if ! command -v nix-prefetch-git &> /dev/null; then
-              echo "FATAL: 'nix-prefetch-git' is not found."
-              exit 1
-          fi
+      - name: Discover and add new Node.js versions
+        run: ./scripts/fetch-node-versions.sh
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-          mapfile -t TO_UPDATE < <(jq -r '.versions | to_entries[] | select(.value.sha256 == "") | "\(.key) \(.value.rev)"' versions.json)
-
-          if [ ${#TO_UPDATE[@]} -eq 0 ]; then
-             echo "All versions already have hashes. Nothing to do."
-             exit 0
-          fi
-
-          UPDATED_JSON=$(cat versions.json)
-
-          for entry in "${TO_UPDATE[@]}"; do
-              VERSION_KEY=$(echo "$entry" | cut -d' ' -f1)
-              REV_HASH=$(echo "$entry" | cut -d' ' -f2)
-
-              echo "Processing ${VERSION_KEY}..."
-
-              NEW_SHA256=$(
-                  nix-prefetch-git "https://github.com/NixOS/nixpkgs.git" "${REV_HASH}" \
-                  --quiet --fetch-submodules | jq -r '.sha256'
-              )
-
-              if [ -n "$NEW_SHA256" ] && [ "$NEW_SHA256" != "null" ]; then
-                  echo " -> Hash: $NEW_SHA256"
-                  UPDATED_JSON=$(echo "$UPDATED_JSON" | jq \
-                      --arg v "$VERSION_KEY" \
-                      --arg sha "$NEW_SHA256" \
-                      '.versions[$v] += {sha256: $sha}'
-                  )
-              else
-                echo "::error::Failed to get hash for rev ${REV_HASH}. Skipping."
-                exit 1
-              fi
-          done
-
-          echo "$UPDATED_JSON" > versions.json
-          echo "✓ versions.json updated successfully."
-
-      - name: Commit changes if changes to versions.json
+      - name: Commit changes if versions.json changed
+        id: commit
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add versions.json
-          git diff --quiet && git diff --staged --quiet || \
-            (git commit -m "chore: update Node.js versions" && git push)
+          if git diff --quiet && git diff --staged --quiet; then
+            echo "No changes to versions.json."
+            echo "sha=${{ github.sha }}" >> "$GITHUB_OUTPUT"
+          else
+            git commit -m "chore: update Node.js versions [skip ci]"
+            git push
+            echo "sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+          fi
+
+  generate-matrix:
+    runs-on: ubuntu-latest
+    needs: [update]
+    outputs:
+      matrix: ${{ steps.set-matrix.outputs.matrix }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.update.outputs.commit_sha }}
+      - id: set-matrix
+        run: |
+          JSON=$(jq -c '.versions | keys' versions.json)
+          echo "matrix=$JSON" >> "$GITHUB_OUTPUT"
 
   build:
     runs-on: ${{ matrix.runner.os }}
@@ -98,10 +75,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: ${{ github.ref }}
-
-      - name: Pull latest changes
-        run: git pull origin ${{ github.ref_name }}
+          ref: ${{ needs.update.outputs.commit_sha }}
 
       - uses: cachix/install-nix-action@v31
         with:
@@ -115,25 +89,18 @@ jobs:
           name: nixpkgs-nodejs
           authToken: "${{ secrets.CACHIX_AUTH_TOKEN }}"
           pushFilter: "(-source$|-src$|\\.tar\\.gz$|\\.tar\\.bz2$|\\.tar\\.xz$|\\.zip$)"
-          useDaemon: True
+          useDaemon: true
 
-      - name: Build ${{ matrix.version }} version
+      - name: Build ${{ matrix.version }}
         run: |
           TARGET_SYSTEM=${{ matrix.runner.system }}
-          cachix watch-store nixpkgs-nodejs &
-          WATCH_PID=$!
-
           echo "Building ${{ matrix.version }} for $TARGET_SYSTEM..."
-          nix build .#packages.$TARGET_SYSTEM.\"${{ matrix.version }}\" -L
-
-          sleep 5
-          kill $WATCH_PID 2>/dev/null || true
+          cachix watch-exec nixpkgs-nodejs -- \
+            nix build .#packages.$TARGET_SYSTEM.\"${{ matrix.version }}\" -L --accept-flake-config
 
       - name: Verify Build Path
         run: |
           TARGET_SYSTEM=${{ matrix.runner.system }}
-          OUT_PATH=$(nix path-info .#packages.$TARGET_SYSTEM.\"${{ matrix.version }}\")
+          OUT_PATH=$(nix path-info .#packages.$TARGET_SYSTEM.\"${{ matrix.version }}\" --accept-flake-config)
           echo "Built package at: $OUT_PATH"
-          
-          # Check if it's valid locally
           nix path-info "$OUT_PATH" > /dev/null

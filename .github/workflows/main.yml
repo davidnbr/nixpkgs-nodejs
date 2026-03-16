@@ -1,0 +1,24 @@
+name: Main Workflow
+
+on: push
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: cachix/install-nix-action@v31
+        with:
+          extra_nix_config: |
+            experimental-features = nix-command flakes
+          set_as_trusted_user: true
+          nix_path: nixpkgs=channel:nixos-unstable
+      - uses: cachix/cachix-action@v16
+        with:
+          name: devenv
+          extraPullNames: |
+            nix-community
+      - run: nix profile add nixpkgs#devenv
+      - run: devenv shell -- treefmt .
+      - name: Check flake
+        run: nix flake check --no-build --accept-flake-config
