@@ -90,20 +90,30 @@
           ) basePackages;
 
           # Create yarn packages bundled with the specific node version
+          # Uses the version-pinned nixpkgs to ensure yarn/node compatibility
+          # (e.g. Node 16 gets yarn 1.x, avoiding OpenSSL/API mismatches with newer yarn).
+          # Falls back to latest nixpkgs if yarn is absent from the pinned rev.
           yarnPackages = nixpkgs.lib.mapAttrs' (
             version: pkg:
+            let
+              versionPkgs = lib.getNixpkgs { inherit system version; };
+              yarnPkgs = if builtins.hasAttr "yarn" versionPkgs then versionPkgs else pkgs;
+            in
             nixpkgs.lib.nameValuePair ("yarn_" + (builtins.replaceStrings [ "." ] [ "_" ] version)) (
               pkgs.symlinkJoin {
                 name = "yarn-" + version;
                 paths = [
-                  (pkgs.yarn.override { nodejs = pkg; })
+                  (yarnPkgs.yarn.override { nodejs = pkg; })
                   pkg
                 ];
               }
             )
           ) basePackages;
 
-          # Create pnpm packages bundled with the specific node version
+          # Create pnpm packages bundled with the specific node version.
+          # Uses latest nixpkgs for pnpm: older nixpkgs pnpm derivations have an
+          # incompatible structure that does not accept a nodejs override argument.
+          # Note: pnpm 8+ requires Node 18+; using pnpm_16_x will fail at runtime.
           pnpmPackages = nixpkgs.lib.mapAttrs' (
             version: pkg:
             nixpkgs.lib.nameValuePair ("pnpm_" + (builtins.replaceStrings [ "." ] [ "_" ] version)) (
