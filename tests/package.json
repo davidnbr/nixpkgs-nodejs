@@ -1,0 +1,12 @@
+{
+  "name": "nixpkgs-nodejs-test",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Test fixture for verifying package managers work with bundled Node.js",
+  "scripts": {
+    "test": "node index.js"
+  },
+  "dependencies": {
+    "ms": "2.1.3"
+  }
+}

@@ -112,8 +112,8 @@
               pkgs.symlinkJoin {
                 name = "yarn-" + version;
                 paths = [
-                  (if canOverrideNodejs then yarnOverride { nodejs = pkg; } else yarnPkgs.yarn)
                   pkg
+                  (if canOverrideNodejs then yarnOverride { nodejs = pkg; } else yarnPkgs.yarn)
                 ];
               }
             )
@@ -135,7 +135,6 @@
             let
               versionPkgs = perVersionPkgs.${version};
 
-              # Prefer top-level pkgs.pnpm (pnpm 10+ era); fall back to nodePackages.pnpm
               pinnedPnpm =
                 if builtins.hasAttr "pnpm" versionPkgs then
                   versionPkgs.pnpm
@@ -162,8 +161,8 @@
               pkgs.symlinkJoin {
                 name = "pnpm-" + version;
                 paths = [
-                  pnpmPkg
                   pkg
+                  pnpmPkg
                 ];
               }
             )
