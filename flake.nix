@@ -58,7 +58,15 @@
               {
                 inherit system;
                 config.allowUnfree = true;
-                config.allowInsecurePredicate = (_: true);
+                # Restrict insecure allowance to Node.js and OpenSSL only.
+                # Older Node versions (14, 16) and their OpenSSL 1.x dependency
+                # are EOL but intentionally included in this flake.
+                config.allowInsecurePredicate =
+                  pkg:
+                  let
+                    name = nixpkgs.lib.getName pkg;
+                  in
+                  nixpkgs.lib.hasPrefix "nodejs" name || nixpkgs.lib.hasPrefix "openssl" name;
               }
           else
             throw "Node.js version ${version} not found in versionMap";
@@ -176,13 +184,16 @@
         allPkgs // { default = allPkgs."22.22"; }
       );
 
-      # Overlay allows users to use these packages in their own nixpkgs instance
+      # Overlay allows users to use these packages in their own nixpkgs instance.
+      # Only the named aliases (nodejs_X_Y, yarn_X_Y, pnpm_X_Y) are exported —
+      # the bare version-string keys ("22.22" etc.) are filtered out to avoid
+      # injecting digit-prefixed attributes into the top-level nixpkgs namespace.
       overlays.default =
         final: prev:
         let
           pkgsForSystem = packagesForSystem final.system;
         in
-        pkgsForSystem;
+        nixpkgs.lib.filterAttrs (name: _: builtins.match "[0-9].*" name == null) pkgsForSystem;
 
       # Formatter for the project
       formatter = forAllSystems (system: nixpkgs.legacyPackages.${system}.nixpkgs-fmt);
