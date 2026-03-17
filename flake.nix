@@ -95,19 +95,24 @@
           # Uses the version-pinned nixpkgs to ensure yarn/node compatibility
           # (e.g. Node 16 gets yarn 1.x, avoiding OpenSSL/API mismatches with newer yarn).
           # Falls back to latest nixpkgs if yarn is absent from the pinned rev.
-          # yarn has consistently accepted a nodejs override argument across all nixpkgs
-          # versions in the supported range, so no __functionArgs guard is needed here.
+          # yarn.override is a callable attrset (same structure as pnpm); __functionArgs
+          # is checked before calling to guard against future packaging changes.
           yarnPackages = nixpkgs.lib.mapAttrs' (
             version: pkg:
             let
               versionPkgs = perVersionPkgs.${version};
               yarnPkgs = if builtins.hasAttr "yarn" versionPkgs then versionPkgs else pkgs;
+              yarnOverride = yarnPkgs.yarn.override or null;
+              canOverrideNodejs =
+                builtins.isAttrs yarnOverride
+                && yarnOverride ? __functionArgs
+                && builtins.hasAttr "nodejs" yarnOverride.__functionArgs;
             in
             nixpkgs.lib.nameValuePair ("yarn_" + (builtins.replaceStrings [ "." ] [ "_" ] version)) (
               pkgs.symlinkJoin {
                 name = "yarn-" + version;
                 paths = [
-                  (yarnPkgs.yarn.override { nodejs = pkg; })
+                  (if canOverrideNodejs then yarnOverride { nodejs = pkg; } else yarnPkgs.yarn)
                   pkg
                 ];
               }
