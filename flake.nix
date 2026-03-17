@@ -1,8 +1,7 @@
 {
-  description = "asdf2nix nodejs plugin with minor version support";
+  description = "Flake that exposes Node.js package versions to make easy calling them.";
 
   inputs = {
-    # Keep the main nixpkgs input for lib functions and utilities
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
   };
 
@@ -26,7 +25,7 @@
         "aarch64-darwin"
       ];
 
-      forAllSystems = f: nixpkgs.lib.genAttrs systems (system: f system);
+      forAllSystems = nixpkgs.lib.genAttrs systems;
 
       lib = rec {
         inherit versionMap;
@@ -62,66 +61,100 @@
               }
           else
             throw "Node.js version ${version} not found in versionMap";
-
-        getNodejs =
-          { system, version }:
-          let
-            pkgs = getNixpkgs { inherit system version; };
-            attrName = versionMap.${version}.attr or "nodejs";
-            attrPath = nixpkgs.lib.splitString "." attrName;
-          in
-          nixpkgs.lib.attrByPath attrPath (throw "Attribute ${attrName} not found") pkgs;
       };
 
-      # Generate all packages for a given system
       packagesForSystem =
         system:
         let
           pkgs = nixpkgs.legacyPackages.${system};
 
-          basePackages = builtins.mapAttrs (
-            version: versionInfo: lib.getNodejs { inherit system version; }
+          perVersionPkgs = builtins.mapAttrs (
+            version: _: lib.getNixpkgs { inherit system version; }
           ) versionMap;
 
-          # Create aliases like nodejs_20_18 for 20.18
+          basePackages = builtins.mapAttrs (
+            version: versionPkgs:
+            let
+              attrName = versionMap.${version}.attr or "nodejs";
+              attrPath = nixpkgs.lib.splitString "." attrName;
+            in
+            nixpkgs.lib.attrByPath attrPath (throw "Attribute ${attrName} not found") versionPkgs
+          ) perVersionPkgs;
+
           aliases = nixpkgs.lib.mapAttrs' (
             version: pkg:
             nixpkgs.lib.nameValuePair ("nodejs_" + (builtins.replaceStrings [ "." ] [ "_" ] version)) pkg
           ) basePackages;
 
-          # Create yarn packages bundled with the specific node version
+          # Create yarn packages bundled with the specific node version.
           # Uses the version-pinned nixpkgs to ensure yarn/node compatibility
-          # (e.g. Node 16 gets yarn 1.x, avoiding OpenSSL/API mismatches with newer yarn).
           # Falls back to latest nixpkgs if yarn is absent from the pinned rev.
+          # yarn.override is a callable attrset (same structure as pnpm); __functionArgs
+          # is checked before calling to guard against future packaging changes.
           yarnPackages = nixpkgs.lib.mapAttrs' (
             version: pkg:
             let
-              versionPkgs = lib.getNixpkgs { inherit system version; };
+              versionPkgs = perVersionPkgs.${version};
               yarnPkgs = if builtins.hasAttr "yarn" versionPkgs then versionPkgs else pkgs;
+              yarnOverride = yarnPkgs.yarn.override or null;
+              canOverrideNodejs =
+                builtins.isAttrs yarnOverride
+                && yarnOverride ? __functionArgs
+                && builtins.hasAttr "nodejs" yarnOverride.__functionArgs;
             in
             nixpkgs.lib.nameValuePair ("yarn_" + (builtins.replaceStrings [ "." ] [ "_" ] version)) (
               pkgs.symlinkJoin {
                 name = "yarn-" + version;
                 paths = [
-                  (yarnPkgs.yarn.override { nodejs = pkg; })
                   pkg
+                  (if canOverrideNodejs then yarnOverride { nodejs = pkg; } else yarnPkgs.yarn)
                 ];
               }
             )
           ) basePackages;
 
           # Create pnpm packages bundled with the specific node version.
-          # Uses latest nixpkgs for pnpm: older nixpkgs pnpm derivations have an
-          # incompatible structure that does not accept a nodejs override argument.
-          # Note: pnpm 8+ requires Node 18+; using pnpm_16_x will fail at runtime.
+          # Strategy: use the pnpm that ships in the same pinned nixpkgs as the Node
+          # version.
+          #
+          # Older nixpkgs keep pnpm under nodePackages.pnpm; newer ones promote it to
+          # pkgs.pnpm with a callable-attrset override that accepts a nodejs argument.
+          # When that override is available we thread
+          # our exact Node derivation through it; otherwise we use pnpm as-is.
+          #
+          # Falls back to latest nixpkgs pnpm only when the pinned rev has no pnpm at
+          # all (rare, but guards against evaluation errors).
           pnpmPackages = nixpkgs.lib.mapAttrs' (
             version: pkg:
+            let
+              versionPkgs = perVersionPkgs.${version};
+
+              pinnedPnpm =
+                if builtins.hasAttr "pnpm" versionPkgs then
+                  versionPkgs.pnpm
+                else
+                  versionPkgs.nodePackages.pnpm or null;
+
+              pnpmOverride = if builtins.isNull pinnedPnpm then null else pinnedPnpm.override or null;
+              canOverrideNodejs =
+                builtins.isAttrs pnpmOverride
+                && pnpmOverride ? __functionArgs
+                && builtins.hasAttr "nodejs" pnpmOverride.__functionArgs;
+
+              pnpmPkg =
+                if builtins.isNull pinnedPnpm then
+                  pkgs.pnpm.override { nodejs = pkg; }
+                else if canOverrideNodejs then
+                  pnpmOverride { nodejs = pkg; }
+                else
+                  pinnedPnpm;
+            in
             nixpkgs.lib.nameValuePair ("pnpm_" + (builtins.replaceStrings [ "." ] [ "_" ] version)) (
               pkgs.symlinkJoin {
                 name = "pnpm-" + version;
                 paths = [
-                  (pkgs.pnpm.override { nodejs = pkg; })
                   pkg
+                  pnpmPkg
                 ];
               }
             )
@@ -130,26 +163,21 @@
         basePackages // aliases // yarnPackages // pnpmPackages;
     in
     {
-      # Standard Flake Outputs
       packages = forAllSystems (
         system:
-        (packagesForSystem system)
-        // {
-          # Default to latest LTS (22.22)
-          default = (packagesForSystem system)."22.22";
-        }
+        let
+          allPkgs = packagesForSystem system;
+        in
+        allPkgs // { default = allPkgs."22.22"; }
       );
 
-      # Overlay allows users to use these packages in their own nixpkgs instance
       overlays.default =
         final: prev:
         let
-          # We need to compute packages for the specific system of the final pkgs
           pkgsForSystem = packagesForSystem final.system;
         in
         pkgsForSystem;
 
-      # Formatter for the project
       formatter = forAllSystems (system: nixpkgs.legacyPackages.${system}.nixpkgs-fmt);
 
       # Library functions for integration (compatible with asdf2nix API)
