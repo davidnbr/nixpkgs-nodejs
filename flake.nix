@@ -111,18 +111,33 @@
           ) basePackages;
 
           # Create pnpm packages bundled with the specific node version.
-          # Uses latest nixpkgs for pnpm: older nixpkgs pnpm derivations have an
-          # incompatible structure that does not accept a nodejs override argument.
-          # Note: pnpm 8+ requires Node 18+; using pnpm_16_x will fail at runtime.
+          # Tries to use the version-pinned nixpkgs for pnpm (e.g. pnpm 7 with Node 16).
+          # Two guards are needed:
+          #   1. Some older nixpkgs don't have pnpm at all.
+          #   2. Even when present, older pnpm's override may not accept a nodejs arg.
+          # nixpkgs' makeOverridable copies the original function's named args onto
+          # .override via __functionArgs, so builtins.functionArgs lets us check whether
+          # nodejs is a supported override argument before calling it.
+          # Falls back to latest nixpkgs pnpm when either guard fails.
           pnpmPackages = nixpkgs.lib.mapAttrs' (
             version: pkg:
+            let
+              versionPkgs = lib.getNixpkgs { inherit system version; };
+              # versionPkgs.pnpm.override or null: safely returns null if pnpm or
+              # override is missing at any level (Nix's `or` handles the full path).
+              # isFunction guards functionArgs, which requires an actual function.
+              # && is short-circuit so functionArgs is never called on null.
+              pnpmOverride = versionPkgs.pnpm.override or null;
+              pnpmPkg =
+                if builtins.isFunction pnpmOverride
+                   && builtins.hasAttr "nodejs" (builtins.functionArgs pnpmOverride)
+                then pnpmOverride { nodejs = pkg; }
+                else pkgs.pnpm.override { nodejs = pkg; };
+            in
             nixpkgs.lib.nameValuePair ("pnpm_" + (builtins.replaceStrings [ "." ] [ "_" ] version)) (
               pkgs.symlinkJoin {
                 name = "pnpm-" + version;
-                paths = [
-                  (pkgs.pnpm.override { nodejs = pkg; })
-                  pkg
-                ];
+                paths = [ pnpmPkg pkg ];
               }
             )
           ) basePackages;
