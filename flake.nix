@@ -2,7 +2,6 @@
   description = "asdf2nix nodejs plugin with minor version support";
 
   inputs = {
-    # Keep the main nixpkgs input for lib functions and utilities
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
   };
 
@@ -73,7 +72,6 @@
           nixpkgs.lib.attrByPath attrPath (throw "Attribute ${attrName} not found") pkgs;
       };
 
-      # Generate all packages for a given system
       packagesForSystem =
         system:
         let
@@ -112,11 +110,11 @@
 
           # Create pnpm packages bundled with the specific node version.
           # Strategy: use the pnpm that ships in the same pinned nixpkgs as the Node
-          # version — it is already era-compatible (e.g. pnpm 8 with Node 18.16).
+          # version
           #
           # Older nixpkgs keep pnpm under nodePackages.pnpm; newer ones promote it to
-          # pkgs.pnpm with a callable-attrset override that accepts a nodejs argument
-          # (detectable via .__functionArgs). When that override is available we thread
+          # pkgs.pnpm with a callable-attrset override that accepts a nodejs argument.
+          # When that override is available we thread
           # our exact Node derivation through it; otherwise we use pnpm as-is.
           #
           # Falls back to latest nixpkgs pnpm only when the pinned rev has no pnpm at
@@ -126,29 +124,33 @@
             let
               versionPkgs = lib.getNixpkgs { inherit system version; };
 
-              # Prefer top-level pkgs.pnpm (pnpm 10+ era); fall back to nodePackages.pnpm
               pinnedPnpm =
-                if builtins.hasAttr "pnpm" versionPkgs then versionPkgs.pnpm
-                else versionPkgs.nodePackages.pnpm or null;
+                if builtins.hasAttr "pnpm" versionPkgs then
+                  versionPkgs.pnpm
+                else
+                  versionPkgs.nodePackages.pnpm or null;
 
-              # In newer nixpkgs pnpm.override is a callable attrset whose __functionArgs
-              # mirror the original package function — check for nodejs there.
-              pnpmOverride = if builtins.isNull pinnedPnpm then null
-                             else pinnedPnpm.override or null;
+              pnpmOverride = if builtins.isNull pinnedPnpm then null else pinnedPnpm.override or null;
               canOverrideNodejs =
                 builtins.isAttrs pnpmOverride
                 && pnpmOverride ? __functionArgs
                 && builtins.hasAttr "nodejs" pnpmOverride.__functionArgs;
 
               pnpmPkg =
-                if builtins.isNull pinnedPnpm then pkgs.pnpm.override { nodejs = pkg; }
-                else if canOverrideNodejs then pnpmOverride { nodejs = pkg; }
-                else pinnedPnpm;
+                if builtins.isNull pinnedPnpm then
+                  pkgs.pnpm.override { nodejs = pkg; }
+                else if canOverrideNodejs then
+                  pnpmOverride { nodejs = pkg; }
+                else
+                  pinnedPnpm;
             in
             nixpkgs.lib.nameValuePair ("pnpm_" + (builtins.replaceStrings [ "." ] [ "_" ] version)) (
               pkgs.symlinkJoin {
                 name = "pnpm-" + version;
-                paths = [ pnpmPkg pkg ];
+                paths = [
+                  pnpmPkg
+                  pkg
+                ];
               }
             )
           ) basePackages;
@@ -156,7 +158,6 @@
         basePackages // aliases // yarnPackages // pnpmPackages;
     in
     {
-      # Standard Flake Outputs
       packages = forAllSystems (
         system:
         (packagesForSystem system)
@@ -166,16 +167,13 @@
         }
       );
 
-      # Overlay allows users to use these packages in their own nixpkgs instance
       overlays.default =
         final: prev:
         let
-          # We need to compute packages for the specific system of the final pkgs
           pkgsForSystem = packagesForSystem final.system;
         in
         pkgsForSystem;
 
-      # Formatter for the project
       formatter = forAllSystems (system: nixpkgs.legacyPackages.${system}.nixpkgs-fmt);
 
       # Library functions for integration (compatible with asdf2nix API)
