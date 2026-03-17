@@ -111,28 +111,39 @@
           ) basePackages;
 
           # Create pnpm packages bundled with the specific node version.
-          # Tries to use the version-pinned nixpkgs for pnpm (e.g. pnpm 7 with Node 16).
-          # Two guards are needed:
-          #   1. Some older nixpkgs don't have pnpm at all.
-          #   2. Even when present, older pnpm's override may not accept a nodejs arg.
-          # nixpkgs' makeOverridable copies the original function's named args onto
-          # .override via __functionArgs, so builtins.functionArgs lets us check whether
-          # nodejs is a supported override argument before calling it.
-          # Falls back to latest nixpkgs pnpm when either guard fails.
+          # Strategy: use the pnpm that ships in the same pinned nixpkgs as the Node
+          # version — it is already era-compatible (e.g. pnpm 8 with Node 18.16).
+          #
+          # Older nixpkgs keep pnpm under nodePackages.pnpm; newer ones promote it to
+          # pkgs.pnpm with a callable-attrset override that accepts a nodejs argument
+          # (detectable via .__functionArgs). When that override is available we thread
+          # our exact Node derivation through it; otherwise we use pnpm as-is.
+          #
+          # Falls back to latest nixpkgs pnpm only when the pinned rev has no pnpm at
+          # all (rare, but guards against evaluation errors).
           pnpmPackages = nixpkgs.lib.mapAttrs' (
             version: pkg:
             let
               versionPkgs = lib.getNixpkgs { inherit system version; };
-              # versionPkgs.pnpm.override or null: safely returns null if pnpm or
-              # override is missing at any level (Nix's `or` handles the full path).
-              # isFunction guards functionArgs, which requires an actual function.
-              # && is short-circuit so functionArgs is never called on null.
-              pnpmOverride = versionPkgs.pnpm.override or null;
+
+              # Prefer top-level pkgs.pnpm (pnpm 10+ era); fall back to nodePackages.pnpm
+              pinnedPnpm =
+                if builtins.hasAttr "pnpm" versionPkgs then versionPkgs.pnpm
+                else versionPkgs.nodePackages.pnpm or null;
+
+              # In newer nixpkgs pnpm.override is a callable attrset whose __functionArgs
+              # mirror the original package function — check for nodejs there.
+              pnpmOverride = if builtins.isNull pinnedPnpm then null
+                             else pinnedPnpm.override or null;
+              canOverrideNodejs =
+                builtins.isAttrs pnpmOverride
+                && pnpmOverride ? __functionArgs
+                && builtins.hasAttr "nodejs" pnpmOverride.__functionArgs;
+
               pnpmPkg =
-                if builtins.isFunction pnpmOverride
-                   && builtins.hasAttr "nodejs" (builtins.functionArgs pnpmOverride)
-                then pnpmOverride { nodejs = pkg; }
-                else pkgs.pnpm.override { nodejs = pkg; };
+                if builtins.isNull pinnedPnpm then pkgs.pnpm.override { nodejs = pkg; }
+                else if canOverrideNodejs then pnpmOverride { nodejs = pkg; }
+                else pinnedPnpm;
             in
             nixpkgs.lib.nameValuePair ("pnpm_" + (builtins.replaceStrings [ "." ] [ "_" ] version)) (
               pkgs.symlinkJoin {
