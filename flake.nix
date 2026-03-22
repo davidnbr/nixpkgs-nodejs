@@ -18,11 +18,7 @@
       versionsData = builtins.fromJSON (builtins.readFile ./versions.json);
       versionMap = versionsData.versions;
 
-      # The default version shown as `packages.<system>.default`.
-      # Set "default" in versions.json to override; falls back to "22.22".
       defaultVersion = versionsData.default or "22.22";
-
-      # Converts "22.22" → "22_22" for use as Nix attribute names.
       sanitizeVersion = builtins.replaceStrings [ "." ] [ "_" ];
 
       systems = [
@@ -96,8 +92,6 @@
           # Create yarn packages bundled with the specific node version.
           # Uses the version-pinned nixpkgs to ensure yarn/node compatibility.
           # Falls back to latest nixpkgs if yarn is absent from the pinned rev.
-          # yarn.override is a callable attrset (same structure as pnpm); __functionArgs
-          # is checked before calling to guard against future packaging changes.
           yarnPackages = nixpkgs.lib.mapAttrs' (
             version: pkg:
             let
@@ -130,8 +124,7 @@
           # it; otherwise we use pnpm as-is.
           #
           # Falls back to latest nixpkgs pnpm only when the pinned rev has no pnpm at
-          # all (rare, but guards against evaluation errors). The fallback also applies
-          # the same __functionArgs guard for consistency.
+          # all.
           pnpmPackages = nixpkgs.lib.mapAttrs' (
             version: pkg:
             let
@@ -151,9 +144,6 @@
 
               pnpmPkg =
                 if builtins.isNull pinnedPnpm then
-                  # Pinned rev has no pnpm at all; fall back to unstable nixpkgs.
-                  # Apply the same __functionArgs guard — pkgs is always modern but
-                  # defensive coding avoids future breakage.
                   let
                     fallbackOverride = pkgs.pnpm.override or null;
                     canOverrideFallback =
@@ -170,8 +160,6 @@
             nixpkgs.lib.nameValuePair ("pnpm_" + sanitizeVersion version) (
               pkgs.symlinkJoin {
                 name = "pnpm-" + version;
-                # pkg first: symlinkJoin uses lndir which skips existing symlinks,
-                # so the first path wins on conflict. pkg must win for node/npm/npx.
                 paths = [
                   pkg
                   pnpmPkg
