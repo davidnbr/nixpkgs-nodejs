@@ -67,9 +67,7 @@
             {
               inherit system;
               config.allowInsecurePredicate =
-                pkg:
-                builtins.match "nodejs.*" pkg.pname != null
-                || builtins.match "openssl.*" pkg.pname != null;
+                pkg: builtins.match "nodejs.*" pkg.pname != null || builtins.match "openssl.*" pkg.pname != null;
             };
       };
 
@@ -92,8 +90,7 @@
           ) perVersionPkgs;
 
           aliases = nixpkgs.lib.mapAttrs' (
-            version: pkg:
-            nixpkgs.lib.nameValuePair ("nodejs_" + sanitizeVersion version) pkg
+            version: pkg: nixpkgs.lib.nameValuePair ("nodejs_" + sanitizeVersion version) pkg
           ) basePackages;
 
           # Create yarn packages bundled with the specific node version.
