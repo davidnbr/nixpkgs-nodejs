@@ -18,6 +18,13 @@
       versionsData = builtins.fromJSON (builtins.readFile ./versions.json);
       versionMap = versionsData.versions;
 
+      # The default version shown as `packages.<system>.default`.
+      # Set "default" in versions.json to override; falls back to "22.22".
+      defaultVersion = versionsData.default or "22.22";
+
+      # Converts "22.22" → "22_22" for use as Nix attribute names.
+      sanitizeVersion = builtins.replaceStrings [ "." ] [ "_" ];
+
       systems = [
         "x86_64-linux"
         "aarch64-linux"
@@ -43,24 +50,27 @@
 
         # NOTE: This uses an impure fetchTarball, which is often discouraged
         # in top-level packages, but is sometimes accepted for version pins.
+        #
+        # allowInsecurePredicate is scoped to Node.js and OpenSSL packages only.
+        # Old Node.js versions (14.x, 16.x) bundle EOL OpenSSL and are flagged
+        # insecure by nixpkgs; we need to allow them intentionally here.
         getNixpkgs =
           { system, version }:
-          if hasVersion { inherit version; } then
-            let
-              info = versionMap.${version};
-            in
-            import
-              (builtins.fetchTarball {
-                url = "https://github.com/NixOS/nixpkgs/archive/${info.rev}.tar.gz";
-                sha256 = info.sha256;
-              })
-              {
-                inherit system;
-                config.allowUnfree = true;
-                config.allowInsecurePredicate = (_: true);
-              }
-          else
-            throw "Node.js version ${version} not found in versionMap";
+          let
+            info = getVersionInfo version;
+          in
+          import
+            (builtins.fetchTarball {
+              url = "https://github.com/NixOS/nixpkgs/archive/${info.rev}.tar.gz";
+              sha256 = info.sha256;
+            })
+            {
+              inherit system;
+              config.allowInsecurePredicate =
+                pkg:
+                builtins.match "nodejs.*" pkg.pname != null
+                || builtins.match "openssl.*" pkg.pname != null;
+            };
       };
 
       packagesForSystem =
@@ -83,11 +93,11 @@
 
           aliases = nixpkgs.lib.mapAttrs' (
             version: pkg:
-            nixpkgs.lib.nameValuePair ("nodejs_" + (builtins.replaceStrings [ "." ] [ "_" ] version)) pkg
+            nixpkgs.lib.nameValuePair ("nodejs_" + sanitizeVersion version) pkg
           ) basePackages;
 
           # Create yarn packages bundled with the specific node version.
-          # Uses the version-pinned nixpkgs to ensure yarn/node compatibility
+          # Uses the version-pinned nixpkgs to ensure yarn/node compatibility.
           # Falls back to latest nixpkgs if yarn is absent from the pinned rev.
           # yarn.override is a callable attrset (same structure as pnpm); __functionArgs
           # is checked before calling to guard against future packaging changes.
@@ -102,7 +112,7 @@
                 && yarnOverride ? __functionArgs
                 && builtins.hasAttr "nodejs" yarnOverride.__functionArgs;
             in
-            nixpkgs.lib.nameValuePair ("yarn_" + (builtins.replaceStrings [ "." ] [ "_" ] version)) (
+            nixpkgs.lib.nameValuePair ("yarn_" + sanitizeVersion version) (
               pkgs.symlinkJoin {
                 name = "yarn-" + version;
                 paths = [
@@ -119,11 +129,12 @@
           #
           # Older nixpkgs keep pnpm under nodePackages.pnpm; newer ones promote it to
           # pkgs.pnpm with a callable-attrset override that accepts a nodejs argument.
-          # When that override is available we thread
-          # our exact Node derivation through it; otherwise we use pnpm as-is.
+          # When that override is available we thread our exact Node derivation through
+          # it; otherwise we use pnpm as-is.
           #
           # Falls back to latest nixpkgs pnpm only when the pinned rev has no pnpm at
-          # all (rare, but guards against evaluation errors).
+          # all (rare, but guards against evaluation errors). The fallback also applies
+          # the same __functionArgs guard for consistency.
           pnpmPackages = nixpkgs.lib.mapAttrs' (
             version: pkg:
             let
@@ -143,15 +154,27 @@
 
               pnpmPkg =
                 if builtins.isNull pinnedPnpm then
-                  pkgs.pnpm.override { nodejs = pkg; }
+                  # Pinned rev has no pnpm at all; fall back to unstable nixpkgs.
+                  # Apply the same __functionArgs guard — pkgs is always modern but
+                  # defensive coding avoids future breakage.
+                  let
+                    fallbackOverride = pkgs.pnpm.override or null;
+                    canOverrideFallback =
+                      builtins.isAttrs fallbackOverride
+                      && fallbackOverride ? __functionArgs
+                      && builtins.hasAttr "nodejs" fallbackOverride.__functionArgs;
+                  in
+                  if canOverrideFallback then fallbackOverride { nodejs = pkg; } else pkgs.pnpm
                 else if canOverrideNodejs then
                   pnpmOverride { nodejs = pkg; }
                 else
                   pinnedPnpm;
             in
-            nixpkgs.lib.nameValuePair ("pnpm_" + (builtins.replaceStrings [ "." ] [ "_" ] version)) (
+            nixpkgs.lib.nameValuePair ("pnpm_" + sanitizeVersion version) (
               pkgs.symlinkJoin {
                 name = "pnpm-" + version;
+                # pkg first: symlinkJoin uses lndir which skips existing symlinks,
+                # so the first path wins on conflict. pkg must win for node/npm/npx.
                 paths = [
                   pkg
                   pnpmPkg
@@ -168,7 +191,12 @@
         let
           allPkgs = packagesForSystem system;
         in
-        allPkgs // { default = allPkgs."22.22"; }
+        allPkgs
+        // {
+          default =
+            allPkgs.${defaultVersion}
+              or (throw "Default Node.js version '${defaultVersion}' not found in versions.json");
+        }
       );
 
       overlays.default =
