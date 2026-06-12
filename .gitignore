@@ -19,3 +19,7 @@ devenv.local.yaml
 # Node
 node_modules
 yarn.lock
+
+# Claude
+.omc
+.claude
