@@ -246,7 +246,8 @@ cmd_discover() {
   log step "Searching GitHub..."
 
   local -a commits
-  mapfile -t commits < <(fetch_commits "nodejs update repo:${NIXPKGS_REPO}")
+  mapfile -t commits < <(fetch_commits "nodejs repo:${NIXPKGS_REPO}")
+  echo "${commits[@]}"
 
   ((${#commits[@]} == 0)) && die "No commits found"
 
