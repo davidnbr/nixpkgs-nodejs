@@ -89,6 +89,7 @@ jobs:
           echo "matrix=$JSON" >> "$GITHUB_OUTPUT"
 
   build:
+    if: github.ref == 'refs/heads/main'
     runs-on: ${{ matrix.runner.os }}
     needs: [generate-matrix, update]
     strategy:
