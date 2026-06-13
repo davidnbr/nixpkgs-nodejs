@@ -49,11 +49,11 @@ jobs:
             echo "commit='chore: update Node.js versions'" >> "$GITHUB_OUTPUT"
           fi
       - name: Create pull request
-        if: ${{ steps.commit.outputs.commit }}
+        if: steps.commit.outputs.commit && github.event_name == 'schedule'
         uses: peter-evans/create-pull-request@v8
         with:
-          commit-message: ${{ steps.update.outputs.commit }}
-          title: ${{ steps.update.outputs.commit }}
+          commit-message: ${{ steps.commit.outputs.commit }}
+          title: ${{ steps.commit.outputs.commit }}
           body: |
             Automatically created pull-request to update Node versions.
           delete-branch: true
