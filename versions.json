@@ -197,6 +197,66 @@
       "rev": "13b0f9e6ac78abbbb736c635d87845c4f4bee51b",
       "sha256": "0js8a1abl5mi1j0l9wiasis8srm1a7wjrd3scwb8xpq3i0amvz8r",
       "attr": "nodejs_25"
+    },
+    "26.2": {
+      "version": "26.2",
+      "rev": "302d9e77f10a189ad64227c5a0e474e4ff5fb9eb",
+      "sha256": "03y4gzn98ls2yrafq9hycx1j2zsbydc1cx6wqmrfyjz828njrg5f",
+      "attr": "nodejs_26"
+    },
+    "26.1": {
+      "version": "26.1",
+      "rev": "0f94bb0d8954e8368a8ef716135c89f3143de178",
+      "sha256": "18jjhvbhb7s2qlnpq4phd8jjxywxdymi5l8p3q5icc6dygw16p00",
+      "attr": "nodejs_26"
+    },
+    "26.0": {
+      "version": "26.0",
+      "rev": "2ebf37ab0d456633dc5c29df64e1f97739eb7e56",
+      "sha256": "0c86sbsasjjxqs86v829kbvq6jdgywrs00rnixn5r6ihh7qycdf5",
+      "attr": "nodejs_26"
+    },
+    "24.14": {
+      "version": "24.14",
+      "rev": "0968bb28e2dd918c3228895ef76ffda0fdf1b5f3",
+      "sha256": "19730d82hvl9s7l8brl3q5xl9qkhjnza1gi9666wgl87cwigq0x3",
+      "attr": "nodejs_24"
+    },
+    "24.13": {
+      "version": "24.13",
+      "rev": "9c0e2056b3c16190aafe67e4d29e530fc1f8c7c7",
+      "sha256": "0pkjlvjpvhsm078v0qb9i0y1vx3rgdpvk8wikvbxn0wldm0xkwps",
+      "attr": "nodejs_24"
+    },
+    "25.8": {
+      "version": "25.8",
+      "rev": "94d8af17424dfc818024d98a59a0a1e0013495e6",
+      "sha256": "1yymvjk5ibxf7j9331i85bdnkmb74hvlha1156znfgsv5h5v6k64",
+      "attr": "nodejs_25"
+    },
+    "25.9": {
+      "version": "25.9",
+      "rev": "71d49971f9bf17919eecb1620de4bc20837c52dd",
+      "sha256": "1fnkq4y9xh8vbk1b4qps1m0av6ri21p5ldagwf58biza27blj41q",
+      "attr": "nodejs_25"
+    },
+    "25.5": {
+      "version": "25.5",
+      "rev": "0801ac780b7116dda2c7b396f7b49c01367853c4",
+      "sha256": "1w4yfkvkgf6a3l51s7nfq8ncjirc0brfbr62y05wzcmfxqq4vrrr",
+      "attr": "nodejs_25"
+    },
+    "25.6": {
+      "version": "25.6",
+      "rev": "699d7d142df2cfacc4837b6b8d9d051b1b508759",
+      "sha256": "0f94sywarrsk0gldfa92nkw3sdc5v3b1xanhwpq2qicv3navd9a9",
+      "attr": "nodejs_25"
+    },
+    "25.7": {
+      "version": "25.7",
+      "rev": "0d60a07834d66731ade3c0368db89e29eb722f7d",
+      "sha256": "0jv21jn1iaf2h2na063r1q91xd2nxncrgjxdnbadr0i0b6gyzci3",
+      "attr": "nodejs_25"
     }
   }
 }
