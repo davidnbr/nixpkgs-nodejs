@@ -59,10 +59,22 @@ jobs:
           delete-branch: true
           reviewers: davidnbr
 
-  generate-matrix:
-    if: ${{ needs.update.outputs.commit_message }}
+  path-filter:
     runs-on: ubuntu-latest
-    needs: [update]
+    outputs:
+      paths: ${{ steps.paths.outputs.path }}
+    steps:
+      - uses: actions/checkout@v6
+      - name: Path filtering
+        id: paths
+        uses: dorny/paths-filter@v4
+        with:
+          filters: versions.json
+
+  generate-matrix:
+    if: ${{ needs.update.outputs.commit_message }} || ${{ needs.path-filter.outputs.paths }}
+    runs-on: ubuntu-latest
+    needs: [update, path-filter]
     outputs:
       matrix: ${{ steps.set-matrix.outputs.matrix }}
     steps:
