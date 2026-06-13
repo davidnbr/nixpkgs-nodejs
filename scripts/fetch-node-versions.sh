@@ -241,7 +241,8 @@ add_version() {
   local tmp
   tmp=$(make_temp)
   jq --arg v "$version" --arg r "$rev" --arg s "$sha256" --arg a "$attr" \
-    '.versions[$v] = { version: $v, rev: $r, sha256: $s, attr: $a }' \
+    '.versions[$v] = { version: $v, rev: $r, sha256: $s, attr: $a }
+     | .versions |= (to_entries | sort_by(.key | split(".") | map(tonumber)) | from_entries)' \
     "$VERSIONS_FILE" >"$tmp" && mv "$tmp" "$VERSIONS_FILE"
 
   log info "Added $version"
