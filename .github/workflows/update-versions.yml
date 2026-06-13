@@ -42,10 +42,13 @@ jobs:
           if git diff --quiet && git diff --staged --quiet; then
             echo "No changes to versions.json."
             echo "sha=${{ github.sha }}" >> "$GITHUB_OUTPUT"
-          else
+          elif [[ "${{ github.ref_name }}" != "main" ]]; then
             git commit -m "chore: update Node.js versions [skip ci]"
             git push
             echo "sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+            echo "commit=chore: update Node.js versions" >> "$GITHUB_OUTPUT"
+          else
+            echo "sha=${{ github.sha }}" >> "$GITHUB_OUTPUT"
             echo "commit=chore: update Node.js versions" >> "$GITHUB_OUTPUT"
           fi
       - name: Create pull request
