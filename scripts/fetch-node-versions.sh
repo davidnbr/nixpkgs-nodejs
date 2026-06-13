@@ -247,7 +247,6 @@ cmd_discover() {
 
   local -a commits
   mapfile -t commits < <(fetch_commits "nodejs repo:${NIXPKGS_REPO}")
-  echo "${commits[@]}"
 
   ((${#commits[@]} == 0)) && die "No commits found"
 
