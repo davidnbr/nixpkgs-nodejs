@@ -14,6 +14,7 @@ jobs:
       contents: write
     outputs:
       commit_sha: ${{ steps.commit.outputs.sha }}
+      commit_message: ${{ steps.commit.outputs.commit }}
 
     steps:
       - uses: actions/checkout@v4
@@ -45,9 +46,21 @@ jobs:
             git commit -m "chore: update Node.js versions [skip ci]"
             git push
             echo "sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+            echo "commit='chore: update Node.js versions'" >> "$GITHUB_OUTPUT"
           fi
+      - name: Create pull request
+        if: ${{ steps.commit.outputs.commit }}
+        uses: peter-evans/create-pull-request@v8
+        with:
+          commit-message: ${{ steps.update.outputs.commit }}
+          title: ${{ steps.update.outputs.commit }}
+          body: |
+            Automatically created pull-request to update Node versions.
+          delete-branch: true
+          reviewers: davidnbr
 
   generate-matrix:
+    if: ${{ needs.update.outputs.commit_message }}
     runs-on: ubuntu-latest
     needs: [update]
     outputs:
