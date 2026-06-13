@@ -257,6 +257,18 @@
       "rev": "0d60a07834d66731ade3c0368db89e29eb722f7d",
       "sha256": "0jv21jn1iaf2h2na063r1q91xd2nxncrgjxdnbadr0i0b6gyzci3",
       "attr": "nodejs_25"
+    },
+    "26.3": {
+      "version": "26.3",
+      "rev": "302d9e77f10a189ad64227c5a0e474e4ff5fb9eb",
+      "sha256": "03y4gzn98ls2yrafq9hycx1j2zsbydc1cx6wqmrfyjz828njrg5f",
+      "attr": "nodejs_26"
+    },
+    "24.15": {
+      "version": "24.15",
+      "rev": "0968bb28e2dd918c3228895ef76ffda0fdf1b5f3",
+      "sha256": "19730d82hvl9s7l8brl3q5xl9qkhjnza1gi9666wgl87cwigq0x3",
+      "attr": "nodejs_24"
     }
   }
 }
