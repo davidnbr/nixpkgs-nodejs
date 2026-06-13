@@ -150,14 +150,31 @@ resolve_attr_name() {
   fi
 }
 
-# Extract Node.js major.minor from commit messages like:
-#   "nodejs_22: 22.14.0 -> 22.15.0"
-#   "nodejs: 20.8.0 -> 20.9.0"
-#   "update nodejs to 22.12.0"
+# Extract the major.minor of the version *landing* at this commit's rev, from
+# messages like:
+#   "nodejs_22: 22.14.0 -> 22.15.0"   -> 22.15 (TO side; this rev ships 22.15.0)
+#   "nodejs-16_x: 16.20.1 -> 16.20.2" -> 16.20
+#   "nodejs: 20.8.0 -> 20.9.0"        -> 20.9
+#   "nodejs_25: init at 25.2.1"       -> 25.2
+#   "nodejs_24: bump to 24.15.0"      -> 24.15 (last-resort: first X.Y after attr)
+#
+# Only matches version-bump commits for the nodejs/nodejs_NN/nodejs-NN_x
+# attrs themselves. Deliberately does NOT match "nodejs_latest: ... -> ..."
+# or other aliases - those bumps don't correspond to this rev shipping that
+# version under the matched attr, and would otherwise pick the wrong rev
+# (e.g. a rev where the version has since been marked EOL/removed).
 extract_version() {
   local -r msg="$1"
-  # Match patterns like "22.14.0" or "22.14" preceded by a word boundary context
-  echo "$msg" | grep -oP '(?:^|[\s:>])(\d+\.\d+)(?:\.\d+)?' | grep -oE '[0-9]+\.[0-9]+' | head -1 || true
+  local -r attr_re='^nodejs(?:-[0-9]+_x|_[0-9]+)?:'
+  local v
+
+  v=$(echo "$msg" | grep -oP "${attr_re}\s*[0-9]+\.[0-9]+(?:\.[0-9]+)?(?:-\S+)?\s*->\s*\K[0-9]+\.[0-9]+" | head -1)
+  [[ -n "$v" ]] && { echo "$v"; return; }
+
+  v=$(echo "$msg" | grep -oiP "${attr_re}\s*init at\s+\K[0-9]+\.[0-9]+" | head -1)
+  [[ -n "$v" ]] && { echo "$v"; return; }
+
+  echo "$msg" | grep -oP "${attr_re}.*?\K[0-9]+\.[0-9]+" | head -1 || true
 }
 
 is_valid_version() {
@@ -224,7 +241,8 @@ add_version() {
   local tmp
   tmp=$(make_temp)
   jq --arg v "$version" --arg r "$rev" --arg s "$sha256" --arg a "$attr" \
-    '.versions[$v] = { version: $v, rev: $r, sha256: $s, attr: $a }' \
+    '.versions[$v] = { version: $v, rev: $r, sha256: $s, attr: $a }
+     | .versions |= (to_entries | sort_by(.key | split(".") | map(tonumber)) | from_entries)' \
     "$VERSIONS_FILE" >"$tmp" && mv "$tmp" "$VERSIONS_FILE"
 
   log info "Added $version"
@@ -246,7 +264,7 @@ cmd_discover() {
   log step "Searching GitHub..."
 
   local -a commits
-  mapfile -t commits < <(fetch_commits "nodejs update repo:${NIXPKGS_REPO}")
+  mapfile -t commits < <(fetch_commits "nodejs repo:${NIXPKGS_REPO}")
 
   ((${#commits[@]} == 0)) && die "No commits found"
 
@@ -380,4 +398,6 @@ main() {
   esac
 }
 
-main "$@"
+if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
+  main "$@"
+fi
