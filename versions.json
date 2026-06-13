@@ -236,8 +236,8 @@
     },
     "25.9": {
       "version": "25.9",
-      "rev": "71d49971f9bf17919eecb1620de4bc20837c52dd",
-      "sha256": "1fnkq4y9xh8vbk1b4qps1m0av6ri21p5ldagwf58biza27blj41q",
+      "rev": "94d8af17424dfc818024d98a59a0a1e0013495e6",
+      "sha256": "1yymvjk5ibxf7j9331i85bdnkmb74hvlha1156znfgsv5h5v6k64",
       "attr": "nodejs_25"
     },
     "25.5": {
