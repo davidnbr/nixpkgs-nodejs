@@ -177,6 +177,26 @@ extract_version() {
   echo "$msg" | grep -oP "${attr_re}.*?\K[0-9]+\.[0-9]+" | head -1 || true
 }
 
+# Confirm that pkgs/development/web/nodejs/v<major>.nix at $rev actually sets
+# `version = "<major.minor>.x"`. A rev's commit message is a label, not a
+# guarantee - this is the source of truth for what the rev actually builds.
+verify_shipped_version() {
+  local -r major="$1" version="$2" rev="$3"
+  local -r url="https://raw.githubusercontent.com/${NIXPKGS_REPO}/${rev}/pkgs/development/web/nodejs/v${major}.nix"
+  local vfile attempt
+  # Retry the fetch: a transient network/CDN blip must not be mistaken for a
+  # real version mismatch (which would wrongly fail the audit / block an add).
+  for attempt in 1 2 3; do
+    if vfile=$(curl -sf "$url" 2>/dev/null); then
+      grep -qP "version\s*=\s*\"${version//./\\.}\.[0-9]+" <<<"$vfile"
+      return
+    fi
+    ((attempt < 3)) && sleep "$attempt"
+  done
+  log warn "Could not fetch v${major}.nix for rev ${rev:0:7} after 3 attempts"
+  return 1
+}
+
 is_valid_version() {
   local -r version="$1"
   [[ "$version" =~ ^[0-9]+\.[0-9]+$ ]]
@@ -224,6 +244,11 @@ add_version() {
     log info "[DRY-RUN] Would add $version (rev: ${rev:0:7})"
     return 0
   fi
+
+  verify_shipped_version "$major" "$version" "$rev" || {
+    log error "Rev ${rev:0:7} does not ship ${version}.x (checked v${major}.nix); refusing to add"
+    return 1
+  }
 
   log info "Adding Node.js $version..."
 
@@ -333,14 +358,43 @@ cmd_add() {
   for entry in "${commits[@]}"; do
     [[ -z "$entry" ]] && continue
     local sha="${entry%%|*}" msg="${entry#*|}"
-    if echo "$msg" | grep -q "$version"; then
-      log info "Found commit: ${sha:0:7}"
-      add_version "$version" "$sha"
-      return 0
-    fi
+    local extracted
+    extracted=$(extract_version "$msg")
+    [[ "$extracted" == "$version" ]] || continue
+
+    log info "Found commit: ${sha:0:7} ($msg)"
+    add_version "$version" "$sha" && return 0
+    log warn "Commit ${sha:0:7} rejected, continuing search..."
   done
 
   die "Could not find Node.js $version in nixpkgs"
+}
+
+cmd_audit() {
+  [[ -f "$VERSIONS_FILE" ]] || die "versions.json not found"
+
+  log info "Auditing versions.json: key == shippedVersion(rev) for each entry..."
+
+  local -a entries
+  mapfile -t entries < <(jq -r '.versions | to_entries[] | "\(.key)|\(.value.rev)"' "$VERSIONS_FILE")
+
+  local fail=0
+  for entry in "${entries[@]}"; do
+    local key="${entry%%|*}" rev="${entry#*|}"
+    local major="${key%%.*}"
+    if verify_shipped_version "$major" "$key" "$rev"; then
+      log info "OK   $key (rev ${rev:0:7})"
+    else
+      log error "FAIL $key (rev ${rev:0:7}) does not ship ${key}.x per v${major}.nix"
+      ((fail++))
+    fi
+  done
+
+  if ((fail > 0)); then
+    die "$fail entr$([[ $fail -eq 1 ]] && echo y || echo ies) failed the shippedVersion audit"
+  fi
+
+  log info "Audit passed: all ${#entries[@]} entries match their pinned rev."
 }
 
 usage() {
@@ -351,6 +405,7 @@ Commands:
   (none)          Discover and add new Node.js versions
   list            List current versions
   add <version>   Add specific version (e.g., 22.12)
+  audit           Verify every entry's rev actually ships its key version
   --dry-run       Show what would be added without making changes
 
 Options:
@@ -390,6 +445,7 @@ main() {
   case "${1:-}" in
   list) cmd_list ;;
   add) cmd_add "${2:-}" ;;
+  audit) cmd_audit ;;
   "") cmd_discover "$dry_run" ;;
   *)
     usage
