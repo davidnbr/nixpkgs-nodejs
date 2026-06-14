@@ -177,6 +177,19 @@ extract_version() {
   echo "$msg" | grep -oP "${attr_re}.*?\K[0-9]+\.[0-9]+" | head -1 || true
 }
 
+# Confirm that pkgs/development/web/nodejs/v<major>.nix at $rev actually sets
+# `version = "<major.minor>.x"`. A rev's commit message is a label, not a
+# guarantee - this is the source of truth for what the rev actually builds.
+verify_shipped_version() {
+  local -r major="$1" version="$2" rev="$3"
+  local vfile
+  vfile=$(curl -sf "https://raw.githubusercontent.com/${NIXPKGS_REPO}/${rev}/pkgs/development/web/nodejs/v${major}.nix" 2>/dev/null) || {
+    log warn "Could not fetch v${major}.nix for rev ${rev:0:7}"
+    return 1
+  }
+  grep -qP "version\s*=\s*\"${version//./\\.}\.[0-9]+" <<<"$vfile"
+}
+
 is_valid_version() {
   local -r version="$1"
   [[ "$version" =~ ^[0-9]+\.[0-9]+$ ]]
@@ -224,6 +237,11 @@ add_version() {
     log info "[DRY-RUN] Would add $version (rev: ${rev:0:7})"
     return 0
   fi
+
+  verify_shipped_version "$major" "$version" "$rev" || {
+    log error "Rev ${rev:0:7} does not ship ${version}.x (checked v${major}.nix); refusing to add"
+    return 1
+  }
 
   log info "Adding Node.js $version..."
 
@@ -333,11 +351,13 @@ cmd_add() {
   for entry in "${commits[@]}"; do
     [[ -z "$entry" ]] && continue
     local sha="${entry%%|*}" msg="${entry#*|}"
-    if echo "$msg" | grep -q "$version"; then
-      log info "Found commit: ${sha:0:7}"
-      add_version "$version" "$sha"
-      return 0
-    fi
+    local extracted
+    extracted=$(extract_version "$msg")
+    [[ "$extracted" == "$version" ]] || continue
+
+    log info "Found commit: ${sha:0:7} ($msg)"
+    add_version "$version" "$sha" && return 0
+    log warn "Commit ${sha:0:7} rejected, continuing search..."
   done
 
   die "Could not find Node.js $version in nixpkgs"
