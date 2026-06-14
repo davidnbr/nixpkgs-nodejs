@@ -182,20 +182,20 @@
     },
     "24.13": {
       "version": "24.13",
-      "rev": "9c0e2056b3c16190aafe67e4d29e530fc1f8c7c7",
-      "sha256": "0pkjlvjpvhsm078v0qb9i0y1vx3rgdpvk8wikvbxn0wldm0xkwps",
+      "rev": "a2cd48be3ba60ff87ddb7b5533e4185959f9f511",
+      "sha256": "15qh6s98abj5n5776bfhqgpbwahqqn4dcalwy1822b7p21cbyqn1",
       "attr": "nodejs_24"
     },
     "24.14": {
       "version": "24.14",
-      "rev": "0968bb28e2dd918c3228895ef76ffda0fdf1b5f3",
-      "sha256": "19730d82hvl9s7l8brl3q5xl9qkhjnza1gi9666wgl87cwigq0x3",
+      "rev": "d0a406bf79d281e5bfbede3a7721b4d6115bcb2c",
+      "sha256": "17g4hqfvv3ljf2xlxl1rfyv7hqs81z1g97phc05xc6z65g867yzg",
       "attr": "nodejs_24"
     },
     "24.15": {
       "version": "24.15",
-      "rev": "0968bb28e2dd918c3228895ef76ffda0fdf1b5f3",
-      "sha256": "19730d82hvl9s7l8brl3q5xl9qkhjnza1gi9666wgl87cwigq0x3",
+      "rev": "227c82a6ca851558a552111bf51824088a2df980",
+      "sha256": "1z7a376s8nqbz35lf550l85rjyai4c0lkr0xn87k2w4104dwi4h4",
       "attr": "nodejs_24"
     },
     "25.2": {
