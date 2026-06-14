@@ -182,12 +182,19 @@ extract_version() {
 # guarantee - this is the source of truth for what the rev actually builds.
 verify_shipped_version() {
   local -r major="$1" version="$2" rev="$3"
-  local vfile
-  vfile=$(curl -sf "https://raw.githubusercontent.com/${NIXPKGS_REPO}/${rev}/pkgs/development/web/nodejs/v${major}.nix" 2>/dev/null) || {
-    log warn "Could not fetch v${major}.nix for rev ${rev:0:7}"
-    return 1
-  }
-  grep -qP "version\s*=\s*\"${version//./\\.}\.[0-9]+" <<<"$vfile"
+  local -r url="https://raw.githubusercontent.com/${NIXPKGS_REPO}/${rev}/pkgs/development/web/nodejs/v${major}.nix"
+  local vfile attempt
+  # Retry the fetch: a transient network/CDN blip must not be mistaken for a
+  # real version mismatch (which would wrongly fail the audit / block an add).
+  for attempt in 1 2 3; do
+    if vfile=$(curl -sf "$url" 2>/dev/null); then
+      grep -qP "version\s*=\s*\"${version//./\\.}\.[0-9]+" <<<"$vfile"
+      return
+    fi
+    ((attempt < 3)) && sleep "$attempt"
+  done
+  log warn "Could not fetch v${major}.nix for rev ${rev:0:7} after 3 attempts"
+  return 1
 }
 
 is_valid_version() {
@@ -363,6 +370,33 @@ cmd_add() {
   die "Could not find Node.js $version in nixpkgs"
 }
 
+cmd_audit() {
+  [[ -f "$VERSIONS_FILE" ]] || die "versions.json not found"
+
+  log info "Auditing versions.json: key == shippedVersion(rev) for each entry..."
+
+  local -a entries
+  mapfile -t entries < <(jq -r '.versions | to_entries[] | "\(.key)|\(.value.rev)"' "$VERSIONS_FILE")
+
+  local fail=0
+  for entry in "${entries[@]}"; do
+    local key="${entry%%|*}" rev="${entry#*|}"
+    local major="${key%%.*}"
+    if verify_shipped_version "$major" "$key" "$rev"; then
+      log info "OK   $key (rev ${rev:0:7})"
+    else
+      log error "FAIL $key (rev ${rev:0:7}) does not ship ${key}.x per v${major}.nix"
+      ((fail++))
+    fi
+  done
+
+  if ((fail > 0)); then
+    die "$fail entr$([[ $fail -eq 1 ]] && echo y || echo ies) failed the shippedVersion audit"
+  fi
+
+  log info "Audit passed: all ${#entries[@]} entries match their pinned rev."
+}
+
 usage() {
   cat <<EOF
 Usage: $(basename "$0") [command] [options]
@@ -371,6 +405,7 @@ Commands:
   (none)          Discover and add new Node.js versions
   list            List current versions
   add <version>   Add specific version (e.g., 22.12)
+  audit           Verify every entry's rev actually ships its key version
   --dry-run       Show what would be added without making changes
 
 Options:
@@ -410,6 +445,7 @@ main() {
   case "${1:-}" in
   list) cmd_list ;;
   add) cmd_add "${2:-}" ;;
+  audit) cmd_audit ;;
   "") cmd_discover "$dry_run" ;;
   *)
     usage

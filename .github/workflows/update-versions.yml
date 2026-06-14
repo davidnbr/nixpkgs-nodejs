@@ -33,6 +33,9 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Audit versions.json (key == shipped version per rev)
+        run: ./scripts/fetch-node-versions.sh audit
+
       - name: Commit changes if versions.json changed
         id: commit
         run: |
